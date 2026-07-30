@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>書法班報名</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>書法班線上報名</h1>
+</header>
+<main>
+
+  <section class="card">
+    <h2>開放報名中的課程</h2>
+    <div id="course-cards"></div>
+    <p class="empty" id="empty-hint" style="display:none;">目前沒有開放報名中的課程，請稍後再回來看看。</p>
+  </section>
+
+  <section class="card" id="form-section" style="display:none;">
+    <h2>報名表單</h2>
+    <form id="reg-form">
+      <div class="form-grid">
+        <div class="full">
+          <label for="course_id">選擇課程 *</label>
+          <select id="course_id" required></select>
+        </div>
+        <div>
+          <label for="name">姓名 *</label>
+          <input type="text" id="name" required>
+        </div>
+        <div>
+          <label for="phone">聯絡電話</label>
+          <input type="text" id="phone">
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email">
+        </div>
+        <div class="full">
+          <label for="note">備註</label>
+          <textarea id="note"></textarea>
+        </div>
+      </div>
+      <div id="custom-questions"></div>
+      <p class="hint" id="form-error" style="color:#b3261e;"></p>
+      <p class="hint" id="form-success" style="color:#274e13;"></p>
+      <div class="actions" style="margin-top:0.8rem;">
+        <button type="submit" class="primary">送出報名</button>
+      </div>
+    </form>
+  </section>
+
+</main>
+
+<script>
+const courseCards = document.getElementById('course-cards');
+const emptyHint = document.getElementById('empty-hint');
+const formSection = document.getElementById('form-section');
+const courseSelect = document.getElementById('course_id');
+const regForm = document.getElementById('reg-form');
+const formError = document.getElementById('form-error');
+const formSuccess = document.getElementById('form-success');
+const customQuestionsWrap = document.getElementById('custom-questions');
+
+const TYPE_LABELS = { text: '文字輸入', number: '數字輸入', single: '單選', multiple: '多選' };
+let currentQuestions = [];
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function courseStatus(course) {
+  const today = todayStr();
+  if (today < course.reg_start) return { text: '尚未開始', cls: 'status-upcoming' };
+  if (today > course.reg_end) return { text: '已截止', cls: 'status-closed' };
+  if (course.capacity !== null && course.registered_count >= course.capacity) {
+    return { text: '已額滿', cls: 'status-full' };
+  }
+  return { text: '報名中', cls: 'status-open' };
+}
+
+async function loadCourses() {
+  const res = await fetch('/api/courses');
+  const all = await res.json();
+  const open = all.filter(c => courseStatus(c).cls === 'status-open');
+
+  courseCards.innerHTML = '';
+  emptyHint.style.display = open.length === 0 ? 'block' : 'none';
+  emptyHint.textContent = all.length === 0
+    ? '目前沒有開放報名中的課程，請稍後再回來看看。'
+    : '目前沒有課程正在報名中，請參考下方課程列表的報名期間。';
+  formSection.style.display = open.length === 0 ? 'none' : 'block';
+
+  courseSelect.innerHTML = open.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  loadQuestionsForCourse(courseSelect.value);
+
+  for (const course of all) {
+    const status = courseStatus(course);
+    const div = document.createElement('div');
+    div.style.cssText = 'border:1px solid var(--border); border-radius:6px; padding:0.8rem 1rem; margin-bottom:0.8rem;';
+    div.innerHTML = `
+      <strong>${escapeHtml(course.name)}</strong>
+      <span class="status-badge ${status.cls}" style="margin-left:0.5rem;">${status.text}</span>
+      <p style="margin:0.4rem 0; font-size:0.9rem;">${escapeHtml(course.description || '')}</p>
+      <p class="hint" style="margin:0;">
+        上課時間：${escapeHtml(course.schedule_text || '未定')}｜
+        名額：${course.capacity ?? '不限'}｜
+        報名期間：${course.reg_start} ~ ${course.reg_end}
+      </p>
+    `;
+    courseCards.appendChild(div);
+  }
+}
+
+function renderQuestion(q) {
+  const requiredMark = q.required ? ' *' : '';
+  let inputHtml = '';
+  if (q.type === 'text') {
+    inputHtml = `<input type="text" data-question-id="${q.id}" data-type="text">`;
+  } else if (q.type === 'number') {
+    inputHtml = `<input type="number" data-question-id="${q.id}" data-type="number">`;
+  } else if (q.type === 'single') {
+    inputHtml = q.options.map(opt => `
+      <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-right:1rem; font-weight:normal;">
+        <input type="radio" name="q-${q.id}" value="${escapeHtml(opt)}" data-question-id="${q.id}" data-type="single">
+        ${escapeHtml(opt)}
+      </label>
+    `).join('');
+  } else if (q.type === 'multiple') {
+    inputHtml = q.options.map(opt => `
+      <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-right:1rem; font-weight:normal;">
+        <input type="checkbox" value="${escapeHtml(opt)}" data-question-id="${q.id}" data-type="multiple">
+        ${escapeHtml(opt)}
+      </label>
+    `).join('');
+  }
+  return `
+    <div class="full" style="margin-bottom:0.8rem;">
+      <label>${escapeHtml(q.question_text)}${requiredMark}</label>
+      ${inputHtml}
+    </div>
+  `;
+}
+
+async function loadQuestionsForCourse(courseId) {
+  if (!courseId) {
+    currentQuestions = [];
+    customQuestionsWrap.innerHTML = '';
+    return;
+  }
+  const res = await fetch(`/api/courses/${courseId}/questions`);
+  currentQuestions = await res.json();
+  customQuestionsWrap.innerHTML = currentQuestions.map(renderQuestion).join('');
+}
+
+courseSelect.addEventListener('change', () => loadQuestionsForCourse(courseSelect.value));
+
+function collectAnswers() {
+  return currentQuestions.map((q) => {
+    if (q.type === 'text' || q.type === 'number') {
+      const input = customQuestionsWrap.querySelector(`[data-question-id="${q.id}"]`);
+      return { question_id: q.id, value: input.value.trim() };
+    }
+    if (q.type === 'single') {
+      const checked = customQuestionsWrap.querySelector(`input[name="q-${q.id}"]:checked`);
+      return { question_id: q.id, value: checked ? checked.value : '' };
+    }
+    const checked = [...customQuestionsWrap.querySelectorAll(`[data-question-id="${q.id}"]:checked`)];
+    return { question_id: q.id, value: checked.map(c => c.value) };
+  });
+}
+
+function validateRequiredAnswers(answers) {
+  for (const q of currentQuestions) {
+    if (!q.required) continue;
+    const a = answers.find(x => x.question_id === q.id);
+    const empty = !a || a.value === '' || a.value === undefined || (Array.isArray(a.value) && a.value.length === 0);
+    if (empty) return `「${q.question_text}」為必填`;
+  }
+  return null;
+}
+
+regForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  formError.textContent = '';
+  formSuccess.textContent = '';
+
+  const answers = collectAnswers();
+  const answerError = validateRequiredAnswers(answers);
+  if (answerError) {
+    formError.textContent = answerError;
+    return;
+  }
+
+  const payload = {
+    course_id: Number(courseSelect.value),
+    name: document.getElementById('name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    note: document.getElementById('note').value.trim(),
+    answers,
+  };
+
+  const res = await fetch('/api/registrations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    formError.textContent = data.error || '報名失敗，請稍後再試';
+    return;
+  }
+
+  regForm.reset();
+  formSuccess.textContent = '報名成功！我們已收到您的資料。';
+});
+
+loadCourses();
+</script>
+</body>
+</html>
