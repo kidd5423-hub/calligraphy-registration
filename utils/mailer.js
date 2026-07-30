@@ -22,8 +22,10 @@ async function buildTransporter() {
 
   return nodemailer.createTransport({
     host,
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    connectionTimeout: 15000,
     tls: { servername: SMTP_HOSTNAME },
     auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
@@ -67,7 +69,7 @@ async function sendRegistrationNotification({ course, registration, answers }) {
     });
     console.log(`[mailer] 已寄送報名通知信到 ${settings.notify_email}`);
   } catch (err) {
-    console.error('[mailer] 寄信失敗：', err.message);
+    console.error(`[mailer] 寄信失敗（收件者：${settings.notify_email}）：`, err.code || '', err.message);
   }
 }
 
