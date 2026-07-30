@@ -1,11 +1,18 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 const db = require('../db/init');
+
+// 部分雲端主機（例如 Render）對外的 IPv6 連線不通，Node 預設可能優先解析成
+// IPv6 導致連線 Gmail SMTP 失敗（ENETUNREACH）。強制優先使用 IPv4 解析。
+dns.setDefaultResultOrder('ipv4first');
 
 function buildTransporter() {
   const { SMTP_USER, SMTP_PASS } = process.env;
   if (!SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
 }
