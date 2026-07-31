@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const { init } = require('./db/init');
 const coursesRouter = require('./routes/courses');
 const registrationsRouter = require('./routes/registrations');
 const { courseQuestionsRouter, questionRouter } = require('./routes/questions');
@@ -31,6 +32,13 @@ app.use('/api/courses/:courseId/questions', courseQuestionsRouter);
 app.use('/api/questions', questionRouter);
 app.use('/api/settings', settingsRouter);
 
-app.listen(PORT, () => {
-  console.log(`書法班報名網站啟動：http://localhost:${PORT}`);
-});
+init()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`書法班報名網站啟動：http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('資料庫初始化失敗：', err);
+    process.exit(1);
+  });

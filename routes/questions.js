@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../db/init');
+const { db } = require('../db/init');
 const { requireAdminAuth } = require('../middleware/adminAuth');
 
 const VALID_TYPES = ['text', 'number', 'single', 'multiple'];
@@ -34,25 +34,26 @@ function validatePayload(body) {
 // 依課程列出題目（GET /api/courses/:courseId/questions）
 const courseQuestionsRouter = express.Router({ mergeParams: true });
 
-courseQuestionsRouter.get('/', (req, res) => {
-  const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.courseId);
+courseQuestionsRouter.get('/', async (req, res) => {
+  const course = await db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.courseId);
   if (!course) return res.status(404).json({ error: '找不到課程' });
 
-  const rows = db.prepare('SELECT * FROM course_questions WHERE course_id = ? ORDER BY sort_order ASC, id ASC').all(req.params.courseId);
+  const rows = await db.prepare('SELECT * FROM course_questions WHERE course_id = ? ORDER BY sort_order ASC, id ASC').all(req.params.courseId);
   res.json(rows.map(parseQuestion));
 });
 
-courseQuestionsRouter.post('/', requireAdminAuth, (req, res) => {
-  const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.courseId);
+courseQuestionsRouter.post('/', requireAdminAuth, async (req, res) => {
+  const course = await db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.courseId);
   if (!course) return res.status(404).json({ error: '找不到課程' });
 
   const error = validatePayload(req.body);
   if (error) return res.status(400).json({ error });
 
   const { question_text, type, options, required, sort_order } = req.body;
-  const finalSortOrder = sort_order ?? (db.prepare('SELECT COUNT(*) AS c FROM course_questions WHERE course_id = ?').get(req.params.courseId).c);
+  const countRow = await db.prepare('SELECT COUNT(*) AS c FROM course_questions WHERE course_id = ?').get(req.params.courseId);
+  const finalSortOrder = sort_order ?? countRow.c;
 
-  const result = db.prepare(`
+  const result = await db.prepare(`
     INSERT INTO course_questions (course_id, question_text, type, options, required, sort_order)
     VALUES (?, ?, ?, ?, ?, ?)
   `).run(
@@ -64,22 +65,22 @@ courseQuestionsRouter.post('/', requireAdminAuth, (req, res) => {
     finalSortOrder
   );
 
-  const question = db.prepare('SELECT * FROM course_questions WHERE id = ?').get(result.lastInsertRowid);
+  const question = await db.prepare('SELECT * FROM course_questions WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(parseQuestion(question));
 });
 
 // 編輯/刪除單一題目（PUT|DELETE /api/questions/:id）
 const questionRouter = express.Router();
 
-questionRouter.put('/:id', requireAdminAuth, (req, res) => {
-  const existing = db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
+questionRouter.put('/:id', requireAdminAuth, async (req, res) => {
+  const existing = await db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: '找不到題目' });
 
   const error = validatePayload(req.body);
   if (error) return res.status(400).json({ error });
 
   const { question_text, type, options, required, sort_order } = req.body;
-  db.prepare(`
+  await db.prepare(`
     UPDATE course_questions
     SET question_text = ?, type = ?, options = ?, required = ?, sort_order = ?
     WHERE id = ?
@@ -92,16 +93,16 @@ questionRouter.put('/:id', requireAdminAuth, (req, res) => {
     req.params.id
   );
 
-  const question = db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
+  const question = await db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
   res.json(parseQuestion(question));
 });
 
-questionRouter.delete('/:id', requireAdminAuth, (req, res) => {
-  const existing = db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
+questionRouter.delete('/:id', requireAdminAuth, async (req, res) => {
+  const existing = await db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: '找不到題目' });
 
-  db.prepare('DELETE FROM registration_answers WHERE question_id = ?').run(req.params.id);
-  db.prepare('DELETE FROM course_questions WHERE id = ?').run(req.params.id);
+  await db.prepare('DELETE FROM registration_answers WHERE question_id = ?').run(req.params.id);
+  await db.prepare('DELETE FROM course_questions WHERE id = ?').run(req.params.id);
   res.status(204).send();
 });
 

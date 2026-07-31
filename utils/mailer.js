@@ -1,10 +1,10 @@
-const db = require('../db/init');
+const { db } = require('../db/init');
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
 const RESEND_FROM = 'onboarding@resend.dev';
 
 async function sendRegistrationNotification({ course, registration, answers }) {
-  const settings = db.prepare('SELECT notify_email FROM app_settings WHERE id = 1').get();
+  const settings = await db.prepare('SELECT notify_email FROM app_settings WHERE id = 1').get();
   if (!settings || !settings.notify_email) {
     console.log('[mailer] 未設定通知信箱，略過寄信');
     return;
