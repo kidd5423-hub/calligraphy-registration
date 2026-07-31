@@ -58,11 +58,17 @@ function validateAnswers(questions, answers) {
 
 // 新增報名
 router.post('/', async (req, res) => {
-  const { course_id, name, phone, email, note, answers } = req.body;
+  const { course_id, name, contact_name, phone, email, note, answers } = req.body;
 
   if (!course_id) return res.status(400).json({ error: '缺少課程資訊' });
   if (!name || typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: '姓名為必填' });
+  }
+  if (!contact_name || typeof contact_name !== 'string' || !contact_name.trim()) {
+    return res.status(400).json({ error: '聯絡人為必填' });
+  }
+  if (!phone || typeof phone !== 'string' || !phone.trim()) {
+    return res.status(400).json({ error: '聯絡電話為必填' });
   }
 
   const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(course_id);
@@ -82,9 +88,9 @@ router.post('/', async (req, res) => {
   if (answerError) return res.status(400).json({ error: answerError });
 
   const result = db.prepare(`
-    INSERT INTO registrations (course_id, name, phone, email, note)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(course_id, name.trim(), phone || null, email || null, note || null);
+    INSERT INTO registrations (course_id, name, contact_name, phone, email, note)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(course_id, name.trim(), contact_name.trim(), phone.trim(), email || null, note || null);
 
   const insertAnswer = db.prepare(`
     INSERT INTO registration_answers (registration_id, question_id, answer_value)
@@ -132,7 +138,7 @@ router.get('/export', requireAdminAuth, (req, res) => {
   const questions = db.prepare('SELECT * FROM course_questions WHERE course_id = ? ORDER BY sort_order ASC, id ASC').all(course_id);
   const registrations = db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id ASC').all(course_id).map(attachAnswers);
 
-  const headers = ['姓名', '電話', 'Email', '備註', '報名時間', ...questions.map(q => q.question_text)];
+  const headers = ['姓名', '聯絡人', '電話', 'Email', '備註', '報名時間', ...questions.map(q => q.question_text)];
   const rows = registrations.map((r) => {
     const answerMap = new Map(r.answers.map(a => [a.question_id, a.value]));
     const answerCells = questions.map((q) => {
@@ -140,7 +146,7 @@ router.get('/export', requireAdminAuth, (req, res) => {
       if (val === undefined) return '';
       return Array.isArray(val) ? val.join('、') : val;
     });
-    return [r.name, r.phone || '', r.email || '', r.note || '', r.created_at, ...answerCells];
+    return [r.name, r.contact_name || '', r.phone || '', r.email || '', r.note || '', r.created_at, ...answerCells];
   });
 
   const csv = String.fromCharCode(0xFEFF) + [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\r\n');

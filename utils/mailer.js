@@ -23,6 +23,7 @@ async function sendRegistrationNotification({ course, registration, answers }) {
   const text = [
     `課程：${course.name}`,
     `姓名：${registration.name}`,
+    `聯絡人：${registration.contact_name || '-'}`,
     `電話：${registration.phone || '-'}`,
     `Email：${registration.email || '-'}`,
     `備註：${registration.note || '-'}`,

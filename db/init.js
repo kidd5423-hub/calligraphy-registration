@@ -21,6 +21,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     course_id INTEGER NOT NULL,
     name TEXT NOT NULL,
+    contact_name TEXT,
     phone TEXT,
     email TEXT,
     note TEXT,
@@ -58,6 +59,11 @@ db.exec(`
 const settingsColumns = db.prepare('PRAGMA table_info(app_settings)').all().map(c => c.name);
 if (!settingsColumns.includes('site_title')) {
   db.exec('ALTER TABLE app_settings ADD COLUMN site_title TEXT');
+}
+
+const registrationColumns = db.prepare('PRAGMA table_info(registrations)').all().map(c => c.name);
+if (!registrationColumns.includes('contact_name')) {
+  db.exec('ALTER TABLE registrations ADD COLUMN contact_name TEXT');
 }
 
 db.prepare('INSERT OR IGNORE INTO app_settings (id, notify_email) VALUES (1, NULL)').run();

@@ -47,8 +47,12 @@
           <input type="text" id="name" required>
         </div>
         <div>
-          <label for="phone">聯絡電話</label>
-          <input type="text" id="phone">
+          <label for="contact_name">聯絡人 *</label>
+          <input type="text" id="contact_name" required>
+        </div>
+        <div>
+          <label for="phone">聯絡電話 *</label>
+          <input type="text" id="phone" required>
         </div>
         <div>
           <label for="email">Email</label>
@@ -219,6 +223,7 @@ regForm.addEventListener('submit', async (e) => {
   const payload = {
     course_id: Number(courseSelect.value),
     name: document.getElementById('name').value.trim(),
+    contact_name: document.getElementById('contact_name').value.trim(),
     phone: document.getElementById('phone').value.trim(),
     email: document.getElementById('email').value.trim(),
     note: document.getElementById('note').value.trim(),

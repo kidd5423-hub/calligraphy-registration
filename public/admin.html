@@ -171,6 +171,7 @@
       <thead>
         <tr>
           <th>姓名</th>
+          <th>聯絡人</th>
           <th>電話</th>
           <th>Email</th>
           <th>備註</th>
@@ -432,6 +433,7 @@ async function loadRegistrations() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${escapeHtml(r.name)}</td>
+      <td>${escapeHtml(r.contact_name || '-')}</td>
       <td>${escapeHtml(r.phone || '-')}</td>
       <td>${escapeHtml(r.email || '-')}</td>
       <td>${escapeHtml(r.note || '-')}</td>
