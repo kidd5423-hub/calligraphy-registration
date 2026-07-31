@@ -67,7 +67,7 @@
       <p class="hint" id="form-error" style="color:#b3261e;"></p>
       <p class="hint" id="form-success" style="color:#274e13;"></p>
       <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary">送出報名</button>
+        <button type="submit" class="primary" id="submit-reg-btn">送出報名</button>
       </div>
     </form>
   </section>
@@ -208,8 +208,11 @@ function validateRequiredAnswers(answers) {
   return null;
 }
 
+const submitRegBtn = document.getElementById('submit-reg-btn');
+
 regForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (submitRegBtn.disabled) return;
   formError.textContent = '';
   formSuccess.textContent = '';
 
@@ -230,20 +233,30 @@ regForm.addEventListener('submit', async (e) => {
     answers,
   };
 
-  const res = await fetch('/api/registrations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  submitRegBtn.disabled = true;
+  submitRegBtn.textContent = '送出中…';
 
-  if (!res.ok) {
-    const data = await res.json();
-    formError.textContent = data.error || '報名失敗，請稍後再試';
-    return;
+  try {
+    const res = await fetch('/api/registrations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      formError.textContent = data.error || '報名失敗，請稍後再試';
+      return;
+    }
+
+    regForm.reset();
+    formSuccess.textContent = '報名成功！我們已收到您的資料。';
+  } catch (err) {
+    formError.textContent = '網路異常，請稍後再試一次';
+  } finally {
+    submitRegBtn.disabled = false;
+    submitRegBtn.textContent = '送出報名';
   }
-
-  regForm.reset();
-  formSuccess.textContent = '報名成功！我們已收到您的資料。';
 });
 
 loadCourses();
