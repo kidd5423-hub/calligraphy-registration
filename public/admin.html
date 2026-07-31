@@ -144,9 +144,12 @@
 
   <section class="card">
     <h2>報名者列表</h2>
-    <div style="max-width:300px; margin-bottom:1rem;">
-      <label for="filter-course">篩選課程</label>
-      <select id="filter-course"></select>
+    <div style="display:flex; gap:0.8rem; align-items:flex-end; margin-bottom:1rem;">
+      <div style="max-width:300px; flex:1;">
+        <label for="filter-course">篩選課程</label>
+        <select id="filter-course"></select>
+      </div>
+      <button type="button" class="secondary" id="export-csv-btn">下載報名名單（CSV）</button>
     </div>
     <table>
       <thead>
@@ -405,6 +408,15 @@ async function loadRegistrations() {
 }
 
 filterCourseSelect.addEventListener('change', loadRegistrations);
+
+document.getElementById('export-csv-btn').addEventListener('click', () => {
+  const courseId = filterCourseSelect.value;
+  if (!courseId) {
+    alert('請先在上面選一個課程，才能下載該課程的報名名單');
+    return;
+  }
+  window.open(`/api/registrations/export?course_id=${courseId}`, '_blank');
+});
 
 const statsList = document.getElementById('stats-list');
 const statsEmptyHint = document.getElementById('stats-empty-hint');

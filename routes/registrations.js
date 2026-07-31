@@ -113,4 +113,42 @@ router.get('/', requireAdminAuth, (req, res) => {
   res.json(rows.map(attachAnswers));
 });
 
+function csvEscape(value) {
+  const str = String(value ?? '');
+  if (/[",\n]/.test(str)) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+// 下載某堂課的報名名單（CSV）
+router.get('/export', requireAdminAuth, (req, res) => {
+  const { course_id } = req.query;
+  if (!course_id) return res.status(400).json({ error: '缺少課程資訊' });
+
+  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(course_id);
+  if (!course) return res.status(404).json({ error: '找不到課程' });
+
+  const questions = db.prepare('SELECT * FROM course_questions WHERE course_id = ? ORDER BY sort_order ASC, id ASC').all(course_id);
+  const registrations = db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id ASC').all(course_id).map(attachAnswers);
+
+  const headers = ['姓名', '電話', 'Email', '備註', '報名時間', ...questions.map(q => q.question_text)];
+  const rows = registrations.map((r) => {
+    const answerMap = new Map(r.answers.map(a => [a.question_id, a.value]));
+    const answerCells = questions.map((q) => {
+      const val = answerMap.get(q.id);
+      if (val === undefined) return '';
+      return Array.isArray(val) ? val.join('、') : val;
+    });
+    return [r.name, r.phone || '', r.email || '', r.note || '', r.created_at, ...answerCells];
+  });
+
+  const csv = String.fromCharCode(0xFEFF) + [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\r\n');
+  const filename = `報名名單_${course.name}.csv`;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="registrations.csv"; filename*=UTF-8''${encodeURIComponent(filename)}`);
+  res.send(csv);
+});
+
 module.exports = router;
