@@ -12,8 +12,10 @@
   "type": "commonjs",
   "dependencies": {
     "@libsql/client": "^0.17.4",
+    "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "multer": "^2.2.0"
   }
 }
