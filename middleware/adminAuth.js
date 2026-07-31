@@ -1,18 +1,19 @@
-function requireAdminAuth(req, res, next) {
+function hasValidSession(req) {
   const password = process.env.ADMIN_PASSWORD;
-  if (!password) return next();
-
-  const header = req.headers.authorization || '';
-  const [scheme, encoded] = header.split(' ');
-  if (scheme === 'Basic' && encoded) {
-    const decoded = Buffer.from(encoded, 'base64').toString('utf8');
-    const separatorIndex = decoded.indexOf(':');
-    const pass = separatorIndex >= 0 ? decoded.slice(separatorIndex + 1) : '';
-    if (pass === password) return next();
-  }
-
-  res.set('WWW-Authenticate', 'Basic realm="Admin"');
-  res.status(401).send('需要管理者密碼才能存取');
+  if (!password) return true;
+  return !!(req.signedCookies && req.signedCookies.admin_session === 'ok');
 }
 
-module.exports = requireAdminAuth;
+// 用在 API 路由：沒登入回傳 401 JSON
+function requireAdminAuth(req, res, next) {
+  if (hasValidSession(req)) return next();
+  res.status(401).json({ error: '需要管理者登入才能存取' });
+}
+
+// 用在 /admin.html 這個頁面本身：沒登入導去登入頁
+function requireAdminPage(req, res, next) {
+  if (hasValidSession(req)) return next();
+  res.redirect('/login.html');
+}
+
+module.exports = { requireAdminAuth, requireAdminPage };

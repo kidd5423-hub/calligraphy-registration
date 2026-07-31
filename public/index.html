@@ -8,7 +8,7 @@
 </head>
 <body>
 <header>
-  <h1>書法班線上報名</h1>
+  <h1 id="page-title">書法班線上報名</h1>
 </header>
 <main>
 
@@ -226,6 +226,11 @@ regForm.addEventListener('submit', async (e) => {
 });
 
 loadCourses();
+
+fetch('/api/settings/site-info').then(r => r.json()).then((data) => {
+  document.getElementById('page-title').textContent = `${data.site_title}線上報名`;
+  document.title = `${data.site_title}報名`;
+});
 </script>
 </body>
 </html>

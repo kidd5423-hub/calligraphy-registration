@@ -7,8 +7,9 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>書法班報名系統 — 後台管理</h1>
+<header style="display:flex; justify-content:space-between; align-items:center;">
+  <h1 id="page-title">書法班報名系統 — 後台管理</h1>
+  <button type="button" class="secondary" id="logout-btn">登出</button>
 </header>
 <main>
 
@@ -16,6 +17,10 @@
     <h2>系統設定</h2>
     <form id="settings-form">
       <div class="form-grid">
+        <div class="full">
+          <label for="site-title-input">網站名稱</label>
+          <input type="text" id="site-title-input" placeholder="書法班報名系統">
+        </div>
         <div class="full">
           <label for="notify-email">報名通知信箱（有人報名時會寄信到這個地址，留空則不寄信）</label>
           <input type="email" id="notify-email" placeholder="admin@example.com">
@@ -188,13 +193,22 @@
 <script>
 const settingsForm = document.getElementById('settings-form');
 const notifyEmailField = document.getElementById('notify-email');
+const siteTitleField = document.getElementById('site-title-input');
 const settingsError = document.getElementById('settings-error');
 const settingsSuccess = document.getElementById('settings-success');
+
+function applySiteTitle(title) {
+  const displayTitle = title || '書法班報名系統';
+  document.getElementById('page-title').textContent = `${displayTitle} — 後台管理`;
+  document.title = `後台管理｜${displayTitle}`;
+}
 
 async function loadSettings() {
   const res = await fetch('/api/settings');
   const data = await res.json();
   notifyEmailField.value = data.notify_email || '';
+  siteTitleField.value = data.site_title || '';
+  applySiteTitle(data.site_title);
 }
 
 settingsForm.addEventListener('submit', async (e) => {
@@ -205,7 +219,10 @@ settingsForm.addEventListener('submit', async (e) => {
   const res = await fetch('/api/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ notify_email: notifyEmailField.value.trim() }),
+    body: JSON.stringify({
+      notify_email: notifyEmailField.value.trim(),
+      site_title: siteTitleField.value.trim(),
+    }),
   });
 
   if (!res.ok) {
@@ -214,7 +231,14 @@ settingsForm.addEventListener('submit', async (e) => {
     return;
   }
 
+  const data = await res.json();
+  applySiteTitle(data.site_title);
   settingsSuccess.textContent = '設定已儲存';
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  location.href = '/login.html';
 });
 
 loadSettings();

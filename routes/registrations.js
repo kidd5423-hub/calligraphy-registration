@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../db/init');
 const { sendRegistrationNotification } = require('../utils/mailer');
-const requireAdminAuth = require('../middleware/adminAuth');
+const { requireAdminAuth } = require('../middleware/adminAuth');
 
 const router = express.Router();
 

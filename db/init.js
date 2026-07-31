@@ -55,6 +55,11 @@ db.exec(`
   );
 `);
 
+const settingsColumns = db.prepare('PRAGMA table_info(app_settings)').all().map(c => c.name);
+if (!settingsColumns.includes('site_title')) {
+  db.exec('ALTER TABLE app_settings ADD COLUMN site_title TEXT');
+}
+
 db.prepare('INSERT OR IGNORE INTO app_settings (id, notify_email) VALUES (1, NULL)').run();
 
 module.exports = db;

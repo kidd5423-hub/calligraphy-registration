@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者登入</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 id="site-title">書法班報名系統</h1>
+</header>
+<main style="max-width:400px;">
+
+  <section class="card">
+    <h2>管理者登入</h2>
+    <form id="login-form">
+      <label for="password">密碼</label>
+      <input type="password" id="password" required autofocus>
+      <p class="hint" id="login-error" style="color:#b3261e;"></p>
+      <div class="actions" style="margin-top:0.8rem;">
+        <button type="submit" class="primary">登入</button>
+      </div>
+    </form>
+  </section>
+
+</main>
+
+<script>
+const form = document.getElementById('login-form');
+const passwordField = document.getElementById('password');
+const loginError = document.getElementById('login-error');
+
+fetch('/api/settings/site-info').then(r => r.json()).then((data) => {
+  document.getElementById('site-title').textContent = data.site_title;
+  document.title = `管理者登入｜${data.site_title}`;
+});
+
+const params = new URLSearchParams(location.search);
+const redirectTo = params.get('redirect') || '/admin.html';
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.textContent = '';
+
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: passwordField.value }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    loginError.textContent = data.error || '登入失敗';
+    return;
+  }
+
+  location.href = redirectTo;
+});
+</script>
+</body>
+</html>
