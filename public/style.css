@@ -90,7 +90,7 @@ header::before {
   justify-content: center;
   background: rgba(155, 47, 38, 0.15);
   color: var(--accent);
-  font-family: "Ma Shan Zheng", "Noto Serif TC", serif;
+  font-family: "Long Cang", "Noto Serif TC", serif;
   font-size: 1.4rem;
   line-height: 1;
   transform: rotate(-2deg);
@@ -99,7 +99,7 @@ header::before {
 
 header h1 {
   margin: 0;
-  font-family: "Ma Shan Zheng", "Noto Serif TC", serif;
+  font-family: "Long Cang", "Noto Serif TC", serif;
   font-weight: 400;
   font-size: clamp(1.25rem, 5vw, 1.9rem);
   letter-spacing: 0.06em;
@@ -126,7 +126,7 @@ header .subtitle {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-family: "Ma Shan Zheng", serif;
+  font-family: "Long Cang", serif;
   font-size: 24rem;
   line-height: 1;
   color: var(--ink);
@@ -137,7 +137,7 @@ header .subtitle {
 
 .hero-title {
   position: relative;
-  font-family: "Ma Shan Zheng", serif;
+  font-family: "Long Cang", serif;
   font-weight: 400;
   font-size: clamp(2rem, 6vw, 3.2rem);
   color: var(--ink);
