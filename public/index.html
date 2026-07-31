@@ -4,12 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>書法班報名</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1 id="page-title">書法班線上報名</h1>
+  <div class="header-inner">
+    <div class="seal">墨</div>
+    <div>
+      <h1 id="page-title">書法班</h1>
+      <p class="subtitle">TRADITIONAL CHINESE CALLIGRAPHY</p>
+    </div>
+  </div>
 </header>
+
+<div class="hero">
+  <h2 class="hero-title">翰墨飄香</h2>
+  <div class="ink-divider"></div>
+  <p class="hero-tagline">靜　心　習　字　傳　承</p>
+</div>
+
 <main>
 
   <section class="card">
@@ -105,7 +121,7 @@ async function loadCourses() {
   for (const course of all) {
     const status = courseStatus(course);
     const div = document.createElement('div');
-    div.style.cssText = 'border:1px solid var(--border); border-radius:6px; padding:0.8rem 1rem; margin-bottom:0.8rem;';
+    div.className = 'course-item';
     div.innerHTML = `
       <strong>${escapeHtml(course.name)}</strong>
       <span class="status-badge ${status.cls}" style="margin-left:0.5rem;">${status.text}</span>
@@ -228,7 +244,7 @@ regForm.addEventListener('submit', async (e) => {
 loadCourses();
 
 fetch('/api/settings/site-info').then(r => r.json()).then((data) => {
-  document.getElementById('page-title').textContent = `${data.site_title}線上報名`;
+  document.getElementById('page-title').textContent = data.site_title;
   document.title = `${data.site_title}報名`;
 });
 </script>
