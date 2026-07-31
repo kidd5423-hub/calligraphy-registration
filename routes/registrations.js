@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db/init');
 const { sendRegistrationNotification } = require('../utils/mailer');
+const requireAdminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
@@ -104,7 +105,7 @@ router.post('/', async (req, res) => {
 });
 
 // 依課程查詢報名列表（不帶 course_id 則回傳全部），每筆附上自訂題目答案
-router.get('/', (req, res) => {
+router.get('/', requireAdminAuth, (req, res) => {
   const { course_id } = req.query;
   const rows = course_id
     ? db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id DESC').all(course_id)

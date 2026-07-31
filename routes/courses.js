@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db/init');
+const requireAdminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.get('/:id', (req, res) => {
 });
 
 // 新增課程
-router.post('/', (req, res) => {
+router.post('/', requireAdminAuth, (req, res) => {
   const error = validateCoursePayload(req.body);
   if (error) return res.status(400).json({ error });
 
@@ -52,7 +53,7 @@ router.post('/', (req, res) => {
 });
 
 // 編輯課程
-router.put('/:id', (req, res) => {
+router.put('/:id', requireAdminAuth, (req, res) => {
   const existing = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: '找不到課程' });
 
@@ -71,7 +72,7 @@ router.put('/:id', (req, res) => {
 });
 
 // 複製課程（含自訂題目）
-router.post('/:id/duplicate', (req, res) => {
+router.post('/:id/duplicate', requireAdminAuth, (req, res) => {
   const original = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
   if (!original) return res.status(404).json({ error: '找不到課程' });
 
@@ -102,7 +103,7 @@ router.post('/:id/duplicate', (req, res) => {
 });
 
 // 刪除課程
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireAdminAuth, (req, res) => {
   const existing = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: '找不到課程' });
 

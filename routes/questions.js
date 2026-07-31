@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db/init');
+const requireAdminAuth = require('../middleware/adminAuth');
 
 const VALID_TYPES = ['text', 'number', 'single', 'multiple'];
 
@@ -41,7 +42,7 @@ courseQuestionsRouter.get('/', (req, res) => {
   res.json(rows.map(parseQuestion));
 });
 
-courseQuestionsRouter.post('/', (req, res) => {
+courseQuestionsRouter.post('/', requireAdminAuth, (req, res) => {
   const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.courseId);
   if (!course) return res.status(404).json({ error: '找不到課程' });
 
@@ -70,7 +71,7 @@ courseQuestionsRouter.post('/', (req, res) => {
 // 編輯/刪除單一題目（PUT|DELETE /api/questions/:id）
 const questionRouter = express.Router();
 
-questionRouter.put('/:id', (req, res) => {
+questionRouter.put('/:id', requireAdminAuth, (req, res) => {
   const existing = db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: '找不到題目' });
 
@@ -95,7 +96,7 @@ questionRouter.put('/:id', (req, res) => {
   res.json(parseQuestion(question));
 });
 
-questionRouter.delete('/:id', (req, res) => {
+questionRouter.delete('/:id', requireAdminAuth, (req, res) => {
   const existing = db.prepare('SELECT * FROM course_questions WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: '找不到題目' });
 

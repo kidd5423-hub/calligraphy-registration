@@ -6,11 +6,17 @@ const coursesRouter = require('./routes/courses');
 const registrationsRouter = require('./routes/registrations');
 const { courseQuestionsRouter, questionRouter } = require('./routes/questions');
 const settingsRouter = require('./routes/settings');
+const requireAdminAuth = require('./middleware/adminAuth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.get('/admin.html', requireAdminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/courses', coursesRouter);

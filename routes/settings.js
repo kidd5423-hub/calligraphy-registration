@@ -1,14 +1,15 @@
 const express = require('express');
 const db = require('../db/init');
+const requireAdminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', requireAdminAuth, (req, res) => {
   const row = db.prepare('SELECT notify_email FROM app_settings WHERE id = 1').get();
   res.json(row);
 });
 
-router.put('/', (req, res) => {
+router.put('/', requireAdminAuth, (req, res) => {
   const { notify_email } = req.body;
   if (notify_email && typeof notify_email !== 'string') {
     return res.status(400).json({ error: 'notify_email 必須是字串' });
