@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../db/init');
+const { db } = require('../db/init');
 const { sendRegistrationNotification } = require('../utils/mailer');
 const { requireAdminAuth } = require('../middleware/adminAuth');
 
@@ -13,8 +13,9 @@ const getAnswersForRegistration = db.prepare(`
   ORDER BY cq.sort_order ASC, cq.id ASC
 `);
 
-function attachAnswers(registration) {
-  const answers = getAnswersForRegistration.all(registration.id).map(a => ({
+async function attachAnswers(registration) {
+  const rows = await getAnswersForRegistration.all(registration.id);
+  const answers = rows.map(a => ({
     question_id: a.question_id,
     question_text: a.question_text,
     value: a.type === 'multiple' ? JSON.parse(a.answer_value) : a.answer_value,
@@ -71,7 +72,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: '聯絡電話為必填' });
   }
 
-  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(course_id);
+  const course = await db.prepare('SELECT * FROM courses WHERE id = ?').get(course_id);
   if (!course) return res.status(404).json({ error: '找不到課程' });
 
   const today = new Date().toISOString().slice(0, 10);
@@ -79,15 +80,15 @@ router.post('/', async (req, res) => {
   if (today > course.reg_end) return res.status(400).json({ error: '此課程報名已截止' });
 
   if (course.capacity !== null) {
-    const currentCount = db.prepare('SELECT COUNT(*) AS c FROM registrations WHERE course_id = ?').get(course_id).c;
-    if (currentCount >= course.capacity) return res.status(400).json({ error: '名額已滿' });
+    const countRow = await db.prepare('SELECT COUNT(*) AS c FROM registrations WHERE course_id = ?').get(course_id);
+    if (countRow.c >= course.capacity) return res.status(400).json({ error: '名額已滿' });
   }
 
-  const questions = db.prepare('SELECT * FROM course_questions WHERE course_id = ?').all(course_id);
+  const questions = await db.prepare('SELECT * FROM course_questions WHERE course_id = ?').all(course_id);
   const answerError = validateAnswers(questions, answers);
   if (answerError) return res.status(400).json({ error: answerError });
 
-  const result = db.prepare(`
+  const result = await db.prepare(`
     INSERT INTO registrations (course_id, name, contact_name, phone, email, note)
     VALUES (?, ?, ?, ?, ?, ?)
   `).run(course_id, name.trim(), contact_name.trim(), phone.trim(), email || null, note || null);
@@ -100,23 +101,23 @@ router.post('/', async (req, res) => {
   for (const q of questions) {
     const val = answerMap.get(q.id);
     if (isEmptyAnswer(val)) continue;
-    insertAnswer.run(result.lastInsertRowid, q.id, Array.isArray(val) ? JSON.stringify(val) : String(val));
+    await insertAnswer.run(result.lastInsertRowid, q.id, Array.isArray(val) ? JSON.stringify(val) : String(val));
   }
 
-  const registration = db.prepare('SELECT * FROM registrations WHERE id = ?').get(result.lastInsertRowid);
+  const registration = await db.prepare('SELECT * FROM registrations WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(registration);
 
-  const { answers: savedAnswers } = attachAnswers(registration);
+  const { answers: savedAnswers } = await attachAnswers(registration);
   sendRegistrationNotification({ course, registration, answers: savedAnswers });
 });
 
 // 依課程查詢報名列表（不帶 course_id 則回傳全部），每筆附上自訂題目答案
-router.get('/', requireAdminAuth, (req, res) => {
+router.get('/', requireAdminAuth, async (req, res) => {
   const { course_id } = req.query;
   const rows = course_id
-    ? db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id DESC').all(course_id)
-    : db.prepare('SELECT * FROM registrations ORDER BY id DESC').all();
-  res.json(rows.map(attachAnswers));
+    ? await db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id DESC').all(course_id)
+    : await db.prepare('SELECT * FROM registrations ORDER BY id DESC').all();
+  res.json(await Promise.all(rows.map(attachAnswers)));
 });
 
 function csvEscape(value) {
@@ -128,15 +129,16 @@ function csvEscape(value) {
 }
 
 // 下載某堂課的報名名單（CSV）
-router.get('/export', requireAdminAuth, (req, res) => {
+router.get('/export', requireAdminAuth, async (req, res) => {
   const { course_id } = req.query;
   if (!course_id) return res.status(400).json({ error: '缺少課程資訊' });
 
-  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(course_id);
+  const course = await db.prepare('SELECT * FROM courses WHERE id = ?').get(course_id);
   if (!course) return res.status(404).json({ error: '找不到課程' });
 
-  const questions = db.prepare('SELECT * FROM course_questions WHERE course_id = ? ORDER BY sort_order ASC, id ASC').all(course_id);
-  const registrations = db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id ASC').all(course_id).map(attachAnswers);
+  const questions = await db.prepare('SELECT * FROM course_questions WHERE course_id = ? ORDER BY sort_order ASC, id ASC').all(course_id);
+  const rawRegistrations = await db.prepare('SELECT * FROM registrations WHERE course_id = ? ORDER BY id ASC').all(course_id);
+  const registrations = await Promise.all(rawRegistrations.map(attachAnswers));
 
   const headers = ['姓名', '聯絡人', '電話', 'Email', '備註', '報名時間', ...questions.map(q => q.question_text)];
   const rows = registrations.map((r) => {

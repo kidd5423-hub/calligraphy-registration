@@ -1,71 +1,105 @@
-const path = require('path');
-const Database = require('better-sqlite3');
+const { createClient } = require('@libsql/client');
 
-const db = new Database(path.join(__dirname, 'data.db'));
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
-db.pragma('journal_mode = WAL');
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS courses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    schedule_text TEXT,
-    capacity INTEGER,
-    reg_start TEXT NOT NULL,
-    reg_end TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
-  );
-
-  CREATE TABLE IF NOT EXISTS registrations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    course_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    contact_name TEXT,
-    phone TEXT,
-    email TEXT,
-    note TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
-    FOREIGN KEY (course_id) REFERENCES courses(id)
-  );
-
-  CREATE TABLE IF NOT EXISTS course_questions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    course_id INTEGER NOT NULL,
-    question_text TEXT NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('text', 'number', 'single', 'multiple')),
-    options TEXT,
-    required INTEGER NOT NULL DEFAULT 0,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
-    FOREIGN KEY (course_id) REFERENCES courses(id)
-  );
-
-  CREATE TABLE IF NOT EXISTS registration_answers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    registration_id INTEGER NOT NULL,
-    question_id INTEGER NOT NULL,
-    answer_value TEXT,
-    FOREIGN KEY (registration_id) REFERENCES registrations(id),
-    FOREIGN KEY (question_id) REFERENCES course_questions(id)
-  );
-
-  CREATE TABLE IF NOT EXISTS app_settings (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    notify_email TEXT
-  );
-`);
-
-const settingsColumns = db.prepare('PRAGMA table_info(app_settings)').all().map(c => c.name);
-if (!settingsColumns.includes('site_title')) {
-  db.exec('ALTER TABLE app_settings ADD COLUMN site_title TEXT');
+function normalizeRow(row) {
+  if (row == null) return row;
+  const out = {};
+  for (const key of Object.keys(row)) {
+    const value = row[key];
+    out[key] = typeof value === 'bigint' ? Number(value) : value;
+  }
+  return out;
 }
 
-const registrationColumns = db.prepare('PRAGMA table_info(registrations)').all().map(c => c.name);
-if (!registrationColumns.includes('contact_name')) {
-  db.exec('ALTER TABLE registrations ADD COLUMN contact_name TEXT');
+// 包一層跟 better-sqlite3 相同形狀的介面（prepare().get/all/run），
+// 讓既有的呼叫端只需要補上 async/await，不用整段重寫。
+const db = {
+  prepare(sql) {
+    return {
+      async get(...params) {
+        const res = await client.execute({ sql, args: params });
+        return res.rows[0] ? normalizeRow(res.rows[0]) : undefined;
+      },
+      async all(...params) {
+        const res = await client.execute({ sql, args: params });
+        return res.rows.map(normalizeRow);
+      },
+      async run(...params) {
+        const res = await client.execute({ sql, args: params });
+        return {
+          lastInsertRowid: res.lastInsertRowid != null ? Number(res.lastInsertRowid) : undefined,
+          changes: res.rowsAffected,
+        };
+      },
+    };
+  },
+};
+
+async function init() {
+  await client.batch([
+    `CREATE TABLE IF NOT EXISTS courses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      schedule_text TEXT,
+      capacity INTEGER,
+      reg_start TEXT NOT NULL,
+      reg_end TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS registrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      contact_name TEXT,
+      phone TEXT,
+      email TEXT,
+      note TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      FOREIGN KEY (course_id) REFERENCES courses(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS course_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL,
+      question_text TEXT NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('text', 'number', 'single', 'multiple')),
+      options TEXT,
+      required INTEGER NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      FOREIGN KEY (course_id) REFERENCES courses(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS registration_answers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      registration_id INTEGER NOT NULL,
+      question_id INTEGER NOT NULL,
+      answer_value TEXT,
+      FOREIGN KEY (registration_id) REFERENCES registrations(id),
+      FOREIGN KEY (question_id) REFERENCES course_questions(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS app_settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      notify_email TEXT
+    )`,
+  ], 'write');
+
+  const settingsInfo = await client.execute('PRAGMA table_info(app_settings)');
+  const settingsColumns = settingsInfo.rows.map(r => r.name);
+  if (!settingsColumns.includes('site_title')) {
+    await client.execute('ALTER TABLE app_settings ADD COLUMN site_title TEXT');
+  }
+
+  const registrationInfo = await client.execute('PRAGMA table_info(registrations)');
+  const registrationColumns = registrationInfo.rows.map(r => r.name);
+  if (!registrationColumns.includes('contact_name')) {
+    await client.execute('ALTER TABLE registrations ADD COLUMN contact_name TEXT');
+  }
+
+  await client.execute('INSERT OR IGNORE INTO app_settings (id, notify_email) VALUES (1, NULL)');
 }
 
-db.prepare('INSERT OR IGNORE INTO app_settings (id, notify_email) VALUES (1, NULL)').run();
-
-module.exports = db;
+module.exports = { db, init };
