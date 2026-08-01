@@ -90,8 +90,8 @@
   <button type="button" id="lightbox-close" aria-label="關閉" style="position:absolute; top:1rem; right:1.2rem; background:none; border:none; color:#f3ecda; font-size:2rem; line-height:1; cursor:pointer;">&times;</button>
   <div style="display:flex; align-items:center; gap:1rem; max-width:90vw;">
     <button type="button" id="lightbox-prev" aria-label="上一張" style="background:none; border:none; color:#f3ecda; font-size:2.5rem; line-height:1; cursor:pointer; padding:0.5rem;">&#8249;</button>
-    <div style="max-width:80vw; max-height:80vh; text-align:center;">
-      <img id="lightbox-img" src="" alt="" style="max-width:80vw; max-height:70vh; object-fit:contain; border-radius:3px; opacity:1; transform:scale(1); transition:opacity 0.28s ease, transform 0.28s ease;">
+    <div style="max-width:80vw; max-height:80vh; text-align:center; perspective:1400px;">
+      <img id="lightbox-img" src="" alt="" style="max-width:80vw; max-height:70vh; object-fit:contain; border-radius:3px; opacity:1; transform:rotateY(0deg); transform-style:preserve-3d; backface-visibility:hidden; box-shadow:0 12px 34px rgba(0,0,0,0.45); transition:opacity 0.45s ease, transform 0.45s cubic-bezier(0.45,0.05,0.35,1);">
       <div style="color:#f3ecda; margin-top:0.8rem;">
         <strong id="lightbox-title" style="font-family:'Klee One', serif; font-size:1.1rem;"></strong>
         <p id="lightbox-description" class="hint" style="color:rgba(243,236,218,0.7); margin:0.3rem 0 0;"></p>
@@ -320,15 +320,66 @@ function applyLightboxContent() {
   lightboxDescription.style.display = item.description ? '' : 'none';
 }
 
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtor) return null;
+    audioCtx = new AudioCtor();
+  }
+  return audioCtx;
+}
+
+// 用 Web Audio API 即時合成翻頁音效（濾波白噪音＋音量包絡），不需外部音檔
+function playPageTurnSound() {
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const duration = 0.26;
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 0.8;
+    filter.frequency.setValueAtTime(2400, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + duration);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.32, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    noise.start();
+    noise.stop(ctx.currentTime + duration);
+  } catch (err) {
+    // 忽略音效播放失敗（例如瀏覽器阻擋自動播放）
+  }
+}
+
 function openLightbox(index) {
   lightboxIndex = index;
   lightboxImg.style.transition = 'none';
   applyLightboxContent();
   lightboxImg.style.opacity = '1';
-  lightboxImg.style.transform = 'scale(1)';
+  lightboxImg.style.transformOrigin = 'center center';
+  lightboxImg.style.transform = 'rotateY(0deg)';
   lightbox.style.display = 'flex';
   requestAnimationFrame(() => {
-    lightboxImg.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+    lightboxImg.style.transition = 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.45,0.05,0.35,1)';
   });
 }
 
@@ -338,16 +389,23 @@ function closeLightbox() {
 
 function goToIndex(newIndex, dir) {
   lightboxIndex = newIndex;
-  lightboxImg.style.opacity = '0';
-  lightboxImg.style.transform = dir === 'next' ? 'translateX(-14px) scale(0.97)' : 'translateX(14px) scale(0.97)';
+  playPageTurnSound();
+
+  // 翻頁效果：目前照片先以左/右邊緣為軸翻出去
+  lightboxImg.style.transformOrigin = dir === 'next' ? 'left center' : 'right center';
+  lightboxImg.style.opacity = '0.15';
+  lightboxImg.style.transform = dir === 'next' ? 'rotateY(-100deg)' : 'rotateY(100deg)';
+
   setTimeout(() => {
     applyLightboxContent();
-    lightboxImg.style.transform = dir === 'next' ? 'translateX(14px) scale(0.97)' : 'translateX(-14px) scale(0.97)';
+    // 換成新照片，從另一側邊緣翻入
+    lightboxImg.style.transformOrigin = dir === 'next' ? 'right center' : 'left center';
+    lightboxImg.style.transform = dir === 'next' ? 'rotateY(80deg)' : 'rotateY(-80deg)';
     requestAnimationFrame(() => {
       lightboxImg.style.opacity = '1';
-      lightboxImg.style.transform = 'translateX(0) scale(1)';
+      lightboxImg.style.transform = 'rotateY(0deg)';
     });
-  }, 220);
+  }, 230);
 }
 
 function showPrev() {

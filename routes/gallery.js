@@ -97,6 +97,19 @@ router.post('/', requireAdminAuth, handleUpload, async (req, res) => {
   res.status(201).json(items);
 });
 
+// 後台：編輯單張作品的標題/說明
+router.put('/:id', requireAdminAuth, async (req, res) => {
+  const existing = await db.prepare('SELECT * FROM gallery_items WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: '找不到作品' });
+
+  const { title, description } = req.body;
+  await db.prepare('UPDATE gallery_items SET title = ?, description = ? WHERE id = ?')
+    .run(title ? title.trim() : null, description ? description.trim() : null, req.params.id);
+
+  const item = await db.prepare('SELECT * FROM gallery_items WHERE id = ?').get(req.params.id);
+  res.json(item);
+});
+
 // 後台：刪除作品
 router.delete('/:id', requireAdminAuth, async (req, res) => {
   const existing = await db.prepare('SELECT * FROM gallery_items WHERE id = ?').get(req.params.id);
