@@ -120,7 +120,14 @@ async function init() {
     await client.execute('ALTER TABLE gallery_items ADD COLUMN album_id INTEGER REFERENCES albums(id)');
   }
 
+  const settingsInfo2 = await client.execute('PRAGMA table_info(app_settings)');
+  const settingsColumns2 = settingsInfo2.rows.map(r => r.name);
+  if (!settingsColumns2.includes('new_badge_days')) {
+    await client.execute('ALTER TABLE app_settings ADD COLUMN new_badge_days INTEGER');
+  }
+
   await client.execute('INSERT OR IGNORE INTO app_settings (id, notify_email) VALUES (1, NULL)');
+  await client.execute('UPDATE app_settings SET new_badge_days = 7 WHERE id = 1 AND new_badge_days IS NULL');
 
   // 既有沒有相簿分類的照片，自動歸進「未分類」相簿，避免消失或顯示異常
   const unfiledCountRow = await client.execute('SELECT COUNT(*) AS c FROM gallery_items WHERE album_id IS NULL');
