@@ -131,7 +131,7 @@ function newBadgeHtml(createdAt, overlay) {
   const created = new Date(createdAt.replace(' ', 'T'));
   const diffDays = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
   if (diffDays < 0 || diffDays > newBadgeDays) return '';
-  return `<span class="new-badge${overlay ? ' new-badge-overlay' : ''}">NEW</span>`;
+  return `<span class="new-badge${overlay ? ' new-badge-overlay' : ''}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>NEW</span>`;
 }
 
 function courseStatus(course) {
