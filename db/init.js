@@ -93,6 +93,13 @@ async function init() {
       sort_order INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
     )`,
+    `CREATE TABLE IF NOT EXISTS albums (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+    )`,
   ], 'write');
 
   const settingsInfo = await client.execute('PRAGMA table_info(app_settings)');
@@ -107,7 +114,36 @@ async function init() {
     await client.execute('ALTER TABLE registrations ADD COLUMN contact_name TEXT');
   }
 
+  const galleryInfo = await client.execute('PRAGMA table_info(gallery_items)');
+  const galleryColumns = galleryInfo.rows.map(r => r.name);
+  if (!galleryColumns.includes('album_id')) {
+    await client.execute('ALTER TABLE gallery_items ADD COLUMN album_id INTEGER REFERENCES albums(id)');
+  }
+
   await client.execute('INSERT OR IGNORE INTO app_settings (id, notify_email) VALUES (1, NULL)');
+
+  // 既有沒有相簿分類的照片，自動歸進「未分類」相簿，避免消失或顯示異常
+  const unfiledCountRow = await client.execute('SELECT COUNT(*) AS c FROM gallery_items WHERE album_id IS NULL');
+  if (unfiledCountRow.rows[0].c > 0) {
+    let unfiledAlbum = await client.execute({
+      sql: 'SELECT id FROM albums WHERE name = ?',
+      args: ['未分類'],
+    });
+    let unfiledAlbumId;
+    if (unfiledAlbum.rows.length > 0) {
+      unfiledAlbumId = unfiledAlbum.rows[0].id;
+    } else {
+      const inserted = await client.execute({
+        sql: 'INSERT INTO albums (name, description) VALUES (?, ?)',
+        args: ['未分類', '尚未分類的照片'],
+      });
+      unfiledAlbumId = inserted.lastInsertRowid;
+    }
+    await client.execute({
+      sql: 'UPDATE gallery_items SET album_id = ? WHERE album_id IS NULL',
+      args: [unfiledAlbumId],
+    });
+  }
 }
 
 module.exports = { db, init };

@@ -74,7 +74,14 @@
 
   <section class="card" id="gallery-section" style="display:none;">
     <h2>教學作品</h2>
-    <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:1rem;"></div>
+    <div id="album-list-view">
+      <div id="album-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:1rem;"></div>
+    </div>
+    <div id="album-detail-view" style="display:none;">
+      <button type="button" id="album-back-btn" class="secondary" style="margin-bottom:1rem;">&larr; 返回相簿列表</button>
+      <h3 id="album-detail-title" style="margin:0 0 1rem;"></h3>
+      <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:1rem;"></div>
+    </div>
   </section>
 
 </main>
@@ -84,7 +91,7 @@
   <div style="display:flex; align-items:center; gap:1rem; max-width:90vw;">
     <button type="button" id="lightbox-prev" aria-label="上一張" style="background:none; border:none; color:#f3ecda; font-size:2.5rem; line-height:1; cursor:pointer; padding:0.5rem;">&#8249;</button>
     <div style="max-width:80vw; max-height:80vh; text-align:center;">
-      <img id="lightbox-img" src="" alt="" style="max-width:80vw; max-height:70vh; object-fit:contain; border-radius:3px;">
+      <img id="lightbox-img" src="" alt="" style="max-width:80vw; max-height:70vh; object-fit:contain; border-radius:3px; opacity:1; transform:scale(1); transition:opacity 0.28s ease, transform 0.28s ease;">
       <div style="color:#f3ecda; margin-top:0.8rem;">
         <strong id="lightbox-title" style="font-family:'Klee One', serif; font-size:1.1rem;"></strong>
         <p id="lightbox-description" class="hint" style="color:rgba(243,236,218,0.7); margin:0.3rem 0 0;"></p>
@@ -286,6 +293,7 @@ fetch('/api/settings/site-info').then(r => r.json()).then((data) => {
   document.title = `${data.site_title}報名`;
 });
 
+let albums = [];
 let galleryItems = [];
 let lightboxIndex = 0;
 
@@ -293,8 +301,15 @@ const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const lightboxTitle = document.getElementById('lightbox-title');
 const lightboxDescription = document.getElementById('lightbox-description');
+const gallerySection = document.getElementById('gallery-section');
+const albumListView = document.getElementById('album-list-view');
+const albumDetailView = document.getElementById('album-detail-view');
+const albumGrid = document.getElementById('album-grid');
+const albumDetailTitle = document.getElementById('album-detail-title');
+const galleryGrid = document.getElementById('gallery-grid');
+const albumBackBtn = document.getElementById('album-back-btn');
 
-function renderLightbox() {
+function applyLightboxContent() {
   const item = galleryItems[lightboxIndex];
   if (!item) return;
   lightboxImg.src = item.image_url;
@@ -307,22 +322,40 @@ function renderLightbox() {
 
 function openLightbox(index) {
   lightboxIndex = index;
-  renderLightbox();
+  lightboxImg.style.transition = 'none';
+  applyLightboxContent();
+  lightboxImg.style.opacity = '1';
+  lightboxImg.style.transform = 'scale(1)';
   lightbox.style.display = 'flex';
+  requestAnimationFrame(() => {
+    lightboxImg.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+  });
 }
 
 function closeLightbox() {
   lightbox.style.display = 'none';
 }
 
+function goToIndex(newIndex, dir) {
+  lightboxIndex = newIndex;
+  lightboxImg.style.opacity = '0';
+  lightboxImg.style.transform = dir === 'next' ? 'translateX(-14px) scale(0.97)' : 'translateX(14px) scale(0.97)';
+  setTimeout(() => {
+    applyLightboxContent();
+    lightboxImg.style.transform = dir === 'next' ? 'translateX(14px) scale(0.97)' : 'translateX(-14px) scale(0.97)';
+    requestAnimationFrame(() => {
+      lightboxImg.style.opacity = '1';
+      lightboxImg.style.transform = 'translateX(0) scale(1)';
+    });
+  }, 220);
+}
+
 function showPrev() {
-  lightboxIndex = (lightboxIndex - 1 + galleryItems.length) % galleryItems.length;
-  renderLightbox();
+  goToIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length, 'prev');
 }
 
 function showNext() {
-  lightboxIndex = (lightboxIndex + 1) % galleryItems.length;
-  renderLightbox();
+  goToIndex((lightboxIndex + 1) % galleryItems.length, 'next');
 }
 
 document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
@@ -338,12 +371,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') showNext();
 });
 
-fetch('/api/gallery').then(r => r.json()).then((items) => {
-  if (!items.length) return;
-  galleryItems = items;
-  const gallerySection = document.getElementById('gallery-section');
-  const galleryGrid = document.getElementById('gallery-grid');
-  gallerySection.style.display = 'block';
+function renderGalleryGrid(items) {
   galleryGrid.innerHTML = items.map((item, index) => `
     <figure class="gallery-thumb" data-index="${index}" style="margin:0; border:1px solid var(--border); border-radius:3px; overflow:hidden; background:#fffdf7; cursor:pointer;">
       <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width:100%; height:160px; object-fit:cover; display:block;">
@@ -357,6 +385,40 @@ fetch('/api/gallery').then(r => r.json()).then((items) => {
   `).join('');
   galleryGrid.querySelectorAll('.gallery-thumb').forEach((el) => {
     el.addEventListener('click', () => openLightbox(Number(el.dataset.index)));
+  });
+}
+
+async function openAlbum(album) {
+  const res = await fetch(`/api/gallery?album_id=${album.id}`);
+  galleryItems = await res.json();
+  albumDetailTitle.textContent = album.name;
+  renderGalleryGrid(galleryItems);
+  albumListView.style.display = 'none';
+  albumDetailView.style.display = 'block';
+}
+
+function backToAlbumList() {
+  albumDetailView.style.display = 'none';
+  albumListView.style.display = 'block';
+}
+
+albumBackBtn.addEventListener('click', backToAlbumList);
+
+fetch('/api/albums').then(r => r.json()).then((data) => {
+  albums = data.filter(a => a.cover_url);
+  if (!albums.length) return;
+  gallerySection.style.display = 'block';
+  albumGrid.innerHTML = albums.map((album, index) => `
+    <figure class="album-thumb" data-index="${index}" style="margin:0; border:1px solid var(--border); border-radius:3px; overflow:hidden; background:#fffdf7; cursor:pointer;">
+      <img src="${album.cover_url}" alt="${escapeHtml(album.name)}" style="width:100%; height:160px; object-fit:cover; display:block;">
+      <figcaption style="padding:0.5rem;">
+        <strong style="font-size:0.9rem;">${escapeHtml(album.name)}</strong>
+        ${album.description ? `<p class="hint" style="margin:0.2rem 0 0;">${escapeHtml(album.description)}</p>` : ''}
+      </figcaption>
+    </figure>
+  `).join('');
+  albumGrid.querySelectorAll('.album-thumb').forEach((el) => {
+    el.addEventListener('click', () => openAlbum(albums[Number(el.dataset.index)]));
   });
 });
 </script>

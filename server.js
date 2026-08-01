@@ -9,6 +9,7 @@ const registrationsRouter = require('./routes/registrations');
 const { courseQuestionsRouter, questionRouter } = require('./routes/questions');
 const settingsRouter = require('./routes/settings');
 const galleryRouter = require('./routes/gallery');
+const albumsRouter = require('./routes/albums');
 const authRouter = require('./routes/auth');
 const { requireAdminPage } = require('./middleware/adminAuth');
 
@@ -33,6 +34,7 @@ app.use('/api/courses/:courseId/questions', courseQuestionsRouter);
 app.use('/api/questions', questionRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/gallery', galleryRouter);
+app.use('/api/albums', albumsRouter);
 
 init()
   .then(() => {
