@@ -21,6 +21,12 @@ const cookieSecret = process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD ||
 app.use(express.json());
 app.use(cookieParser(cookieSecret));
 
+// 給等待頁（另一個網域）探測網站是否已啟動用，允許跨網域呼叫、不查資料庫
+app.get('/api/health', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.json({ ok: true });
+});
+
 app.get('/admin.html', requireAdminPage, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
