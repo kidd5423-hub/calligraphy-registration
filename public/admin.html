@@ -330,7 +330,7 @@ settingsForm.addEventListener('submit', async (e) => {
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await fetch('/api/logout', { method: 'POST' });
-  location.href = '/login.html';
+  location.href = '/';
 });
 
 loadSettings();
