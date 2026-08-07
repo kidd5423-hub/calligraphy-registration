@@ -6,100 +6,126 @@
 <title>書法班報名</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Klee+One&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  body { margin: 0; }
+  a { color: oklch(46% 0.17 29); text-decoration: none; }
+  a:hover { color: oklch(38% 0.17 29); text-decoration: underline; }
+  input, textarea, select, button { font-family: 'Noto Sans TC', sans-serif; }
+  ::selection { background: oklch(46% 0.17 29 / 0.18); }
+</style>
 </head>
 <body>
-<header>
-  <a href="/admin.html" class="admin-entry">管理者登入</a>
-  <div class="header-inner">
-    <div class="seal">墨</div>
-    <div>
-      <h1 id="page-title">書法班</h1>
-      <p class="subtitle">TRADITIONAL CHINESE CALLIGRAPHY</p>
+
+<div style="background: oklch(97% 0.012 75); min-height: 100vh; font-family: 'Noto Sans TC', sans-serif; color: oklch(20% 0.014 75);">
+
+  <header style="position: sticky; top: 0; z-index: 20; background: oklch(97% 0.012 75 / 0.92); backdrop-filter: blur(6px); border-bottom: 1px solid oklch(85% 0.012 75); padding: 0.9rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 0.9rem;">
+      <div style="width: 44px; height: 44px; background: oklch(46% 0.17 29); color: oklch(97% 0.01 75); display: flex; align-items: center; justify-content: center; font-family: 'Ma Shan Zheng', cursive; font-size: 1.7rem; border-radius: 3px; flex-shrink: 0;">墨</div>
+      <div>
+        <h1 id="page-title" style="margin: 0; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 0.05em;">書法班</h1>
+        <p style="margin: 0.1rem 0 0; font-size: 0.68rem; letter-spacing: 0.2em; color: oklch(48% 0.02 75); text-transform: uppercase;">Traditional Chinese Calligraphy</p>
+      </div>
+    </div>
+    <a href="/admin.html" style="font-size: 0.85rem; color: oklch(40% 0.02 75); border: 1px solid oklch(85% 0.012 75); padding: 0.45rem 0.9rem; border-radius: 2px;">管理者登入</a>
+  </header>
+
+  <section style="padding: 5.5rem 2rem 4.5rem; text-align: center; position: relative; overflow: hidden;">
+    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, oklch(46% 0.17 29 / 0.05), transparent 45%), radial-gradient(circle at 80% 70%, oklch(20% 0.014 75 / 0.05), transparent 50%); pointer-events: none;"></div>
+    <h2 style="position: relative; margin: 0; font-family: 'Ma Shan Zheng', cursive; font-size: clamp(3rem, 9vw, 6rem); line-height: 1; color: oklch(20% 0.014 75); font-weight: 400;">翰墨飄香</h2>
+    <div style="position: relative; width: 140px; height: 2px; margin: 1.8rem auto; background: linear-gradient(90deg, transparent, oklch(20% 0.014 75 / 0.55), transparent);"></div>
+    <p style="position: relative; margin: 0; font-size: 0.95rem; letter-spacing: 0.6em; color: oklch(48% 0.02 75); padding-left: 0.6em;">靜心習字傳承</p>
+  </section>
+
+  <main style="max-width: 1040px; margin: 0 auto; padding: 0 2rem 6rem; display: flex; flex-direction: column; gap: 4.5rem;">
+
+    <section>
+      <h3 style="font-family: 'Noto Serif TC', serif; font-size: 1.5rem; font-weight: 600; margin: 0 0 1.8rem; display: flex; align-items: center; gap: 0.7rem;">
+        <span style="width: 22px; height: 2px; background: oklch(46% 0.17 29); display: inline-block;"></span>
+        開放報名中的課程
+      </h3>
+      <div id="course-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.4rem;"></div>
+      <p id="empty-hint" style="margin: 1rem 0 0; font-size: 0.9rem; color: oklch(48% 0.02 75); display: none;"></p>
+    </section>
+
+    <section id="form-section" style="display: none;">
+      <h3 style="font-family: 'Noto Serif TC', serif; font-size: 1.5rem; font-weight: 600; margin: 0 0 1.8rem; display: flex; align-items: center; gap: 0.7rem;">
+        <span style="width: 22px; height: 2px; background: oklch(46% 0.17 29); display: inline-block;"></span>
+        報名表單
+      </h3>
+      <form id="reg-form" style="border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 2rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1.3rem;">
+        <div>
+          <label for="course_id" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem;">選擇課程 *</label>
+          <select id="course_id" required style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; color: oklch(20% 0.014 75); box-sizing: border-box;"></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem;">
+          <div>
+            <label for="name" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem;">姓名 *</label>
+            <input type="text" id="name" required style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box;">
+          </div>
+          <div>
+            <label for="contact_name" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem;">聯絡人 *</label>
+            <input type="text" id="contact_name" required style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box;">
+          </div>
+          <div>
+            <label for="phone" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem;">聯絡電話 *</label>
+            <input type="text" id="phone" required style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box;">
+          </div>
+          <div>
+            <label for="email" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem;">Email</label>
+            <input type="email" id="email" style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box;">
+          </div>
+        </div>
+        <div>
+          <label for="note" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem;">備註</label>
+          <textarea id="note" rows="3" style="width: 100%; border: 1px solid oklch(85% 0.012 75); background: transparent; padding: 0.6rem; font-size: 0.9rem; border-radius: 2px; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+
+        <div id="custom-questions"></div>
+
+        <p id="form-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29);"></p>
+        <p id="form-success" style="margin: 0; font-size: 0.85rem; color: oklch(42% 0.09 145);"></p>
+        <div>
+          <button type="submit" id="submit-reg-btn" style="background: oklch(46% 0.17 29); color: oklch(98% 0.01 75); border: none; padding: 0.75rem 2.2rem; font-size: 0.92rem; border-radius: 2px; cursor: pointer; letter-spacing: 0.1em;">送出報名</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="gallery-section" style="display: none;">
+      <h3 style="font-family: 'Noto Serif TC', serif; font-size: 1.5rem; font-weight: 600; margin: 0 0 1.8rem; display: flex; align-items: center; gap: 0.7rem;">
+        <span style="width: 22px; height: 2px; background: oklch(46% 0.17 29); display: inline-block;"></span>
+        教學作品
+      </h3>
+
+      <div id="album-list-view">
+        <div id="album-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.6rem;"></div>
+      </div>
+
+      <div id="album-detail-view" style="display: none;">
+        <button type="button" id="album-back-btn" style="background: none; border: 1px solid oklch(85% 0.012 75); padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 2px; cursor: pointer; margin-bottom: 1.5rem;">&larr; 返回相簿列表</button>
+        <h4 id="album-detail-title" style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.2rem; font-size: 1.15rem;"></h4>
+        <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="lightbox" style="display: none; position: fixed; inset: 0; background: oklch(15% 0.01 75 / 0.94); z-index: 1000; align-items: center; justify-content: center; flex-direction: column;">
+    <button type="button" id="lightbox-close" aria-label="關閉" style="position: absolute; top: 1.2rem; right: 1.4rem; background: none; border: none; color: oklch(96% 0.01 75); font-size: 2rem; line-height: 1; cursor: pointer;">&times;</button>
+    <div style="display: flex; align-items: center; gap: 1.2rem; max-width: 90vw;">
+      <button type="button" id="lightbox-prev" aria-label="上一張" style="background: none; border: none; color: oklch(96% 0.01 75); font-size: 2.4rem; cursor: pointer; padding: 0.5rem;">&#8249;</button>
+      <div style="max-width: 78vw; max-height: 80vh; text-align: center;">
+        <img id="lightbox-img" src="" alt="" style="max-width: 78vw; max-height: 68vh; object-fit: contain; box-shadow: 0 14px 38px oklch(0% 0 0 / 0.4); opacity: 1; transform: translateX(0); transition: opacity 0.35s ease, transform 0.35s ease;">
+        <div style="color: oklch(96% 0.01 75); margin-top: 1rem;">
+          <strong id="lightbox-title" style="font-family: 'Noto Serif TC', serif; font-size: 1.1rem;"></strong>
+          <p id="lightbox-description" style="margin: 0.35rem 0 0; font-size: 0.85rem; color: oklch(85% 0.01 75 / 0.75);"></p>
+        </div>
+      </div>
+      <button type="button" id="lightbox-next" aria-label="下一張" style="background: none; border: none; color: oklch(96% 0.01 75); font-size: 2.4rem; cursor: pointer; padding: 0.5rem;">&#8250;</button>
     </div>
   </div>
-</header>
 
-<div class="hero">
-  <h2 class="hero-title">翰墨飄香</h2>
-  <div class="ink-divider"></div>
-  <p class="hero-tagline">靜　心　習　字　傳　承</p>
-</div>
-
-<main>
-
-  <section class="card">
-    <h2>開放報名中的課程</h2>
-    <div id="course-cards"></div>
-    <p class="empty" id="empty-hint" style="display:none;">目前沒有開放報名中的課程，請稍後再回來看看。</p>
-  </section>
-
-  <section class="card" id="form-section" style="display:none;">
-    <h2>報名表單</h2>
-    <form id="reg-form">
-      <div class="form-grid">
-        <div class="full">
-          <label for="course_id">選擇課程 *</label>
-          <select id="course_id" required></select>
-        </div>
-        <div>
-          <label for="name">姓名 *</label>
-          <input type="text" id="name" required>
-        </div>
-        <div>
-          <label for="contact_name">聯絡人 *</label>
-          <input type="text" id="contact_name" required>
-        </div>
-        <div>
-          <label for="phone">聯絡電話 *</label>
-          <input type="text" id="phone" required>
-        </div>
-        <div>
-          <label for="email">Email</label>
-          <input type="email" id="email">
-        </div>
-        <div class="full">
-          <label for="note">備註</label>
-          <textarea id="note"></textarea>
-        </div>
-      </div>
-      <div id="custom-questions"></div>
-      <p class="hint" id="form-error" style="color:#b3261e;"></p>
-      <p class="hint" id="form-success" style="color:#274e13;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary" id="submit-reg-btn">送出報名</button>
-      </div>
-    </form>
-  </section>
-
-  <section class="card" id="gallery-section" style="display:none;">
-    <h2>教學作品</h2>
-    <div id="album-list-view">
-      <div id="album-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:1rem;"></div>
-    </div>
-    <div id="album-detail-view" style="display:none;">
-      <button type="button" id="album-back-btn" class="secondary" style="margin-bottom:1rem;">&larr; 返回相簿列表</button>
-      <h3 id="album-detail-title" style="margin:0 0 1rem;"></h3>
-      <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:1rem;"></div>
-    </div>
-  </section>
-
-</main>
-
-<div id="lightbox" style="display:none; position:fixed; inset:0; background:rgba(20,18,16,0.9); z-index:1000; align-items:center; justify-content:center; flex-direction:column;">
-  <button type="button" id="lightbox-close" aria-label="關閉" style="position:absolute; top:1rem; right:1.2rem; background:none; border:none; color:#f3ecda; font-size:2rem; line-height:1; cursor:pointer;">&times;</button>
-  <div style="display:flex; align-items:center; gap:1rem; max-width:90vw;">
-    <button type="button" id="lightbox-prev" aria-label="上一張" style="background:none; border:none; color:#f3ecda; font-size:2.5rem; line-height:1; cursor:pointer; padding:0.5rem;">&#8249;</button>
-    <div style="max-width:80vw; max-height:80vh; text-align:center; perspective:1400px;">
-      <img id="lightbox-img" src="" alt="" style="max-width:80vw; max-height:70vh; object-fit:contain; border-radius:3px; opacity:1; transform:rotateY(0deg); transform-style:preserve-3d; backface-visibility:hidden; box-shadow:0 12px 34px rgba(0,0,0,0.45); transition:opacity 0.45s ease, transform 0.45s cubic-bezier(0.45,0.05,0.35,1);">
-      <div style="color:#f3ecda; margin-top:0.8rem;">
-        <strong id="lightbox-title" style="font-family:'Klee One', serif; font-size:1.1rem;"></strong>
-        <p id="lightbox-description" class="hint" style="color:rgba(243,236,218,0.7); margin:0.3rem 0 0;"></p>
-      </div>
-    </div>
-    <button type="button" id="lightbox-next" aria-label="下一張" style="background:none; border:none; color:#f3ecda; font-size:2.5rem; line-height:1; cursor:pointer; padding:0.5rem;">&#8250;</button>
-  </div>
 </div>
 
 <script>
@@ -127,34 +153,33 @@ function escapeHtml(str) {
 
 let newBadgeDays = 7;
 
-function newBadgeHtml(createdAt, overlay) {
+function newBadgeHtml(createdAt, cornerStyle) {
   if (!newBadgeDays || newBadgeDays <= 0 || !createdAt) return '';
   const created = new Date(createdAt.replace(' ', 'T'));
   const diffDays = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
   if (diffDays < 0 || diffDays > newBadgeDays) return '';
-  return `<span class="new-badge${overlay ? ' new-badge-overlay' : ''}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>NEW</span>`;
+  const style = cornerStyle ? ' style="position:absolute; top:-8px; right:14px; z-index:2;"' : '';
+  return `<span class="new-badge"${style}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>NEW</span>`;
 }
 
 function courseStatus(course) {
   const today = todayStr();
-  if (today < course.reg_start) return { text: '尚未開始', cls: 'status-upcoming' };
-  if (today > course.reg_end) return { text: '已截止', cls: 'status-closed' };
-  if (course.capacity !== null && course.registered_count >= course.capacity) {
-    return { text: '已額滿', cls: 'status-full' };
-  }
-  return { text: '報名中', cls: 'status-open' };
+  if (today < course.reg_start) return { text: '尚未開始', color: 'oklch(55% 0.02 75)' };
+  if (today > course.reg_end) return { text: '已截止', color: 'oklch(55% 0.02 75)' };
+  if (course.capacity !== null && course.registered_count >= course.capacity) return { text: '已額滿', color: 'oklch(50% 0.14 55)' };
+  return { text: '報名中', color: 'oklch(46% 0.17 29)' };
 }
 
 async function loadCourses() {
   const res = await fetch('/api/courses');
   const all = await res.json();
-  const open = all.filter(c => courseStatus(c).cls === 'status-open');
+  const open = all.filter(c => courseStatus(c).text === '報名中');
 
   courseCards.innerHTML = '';
   emptyHint.style.display = open.length === 0 ? 'block' : 'none';
   emptyHint.textContent = all.length === 0
     ? '目前沒有開放報名中的課程，請稍後再回來看看。'
-    : '目前沒有課程正在報名中，請參考下方課程列表的報名期間。';
+    : '目前沒有課程正在報名中，請參考上方課程列表的報名期間。';
   formSection.style.display = open.length === 0 ? 'none' : 'block';
 
   courseSelect.innerHTML = open.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
@@ -163,17 +188,15 @@ async function loadCourses() {
   for (const course of all) {
     const status = courseStatus(course);
     const div = document.createElement('div');
-    div.className = 'course-item';
+    div.style.cssText = `position: relative; border: 1px solid oklch(85% 0.012 75); border-top: 3px solid ${status.color}; background: oklch(99% 0.005 75); padding: 1.5rem; border-radius: 2px;`;
     div.innerHTML = `
-      ${newBadgeHtml(course.created_at)}
-      <strong>${escapeHtml(course.name)}</strong>
-      <span class="status-badge ${status.cls}" style="margin-left:0.5rem;">${status.text}</span>
-      <p style="margin:0.4rem 0; font-size:0.9rem;">${escapeHtml(course.description || '')}</p>
-      <p class="hint" style="margin:0;">
-        上課時間：${escapeHtml(course.schedule_text || '未定')}｜
-        名額：${course.capacity ?? '不限'}｜
-        報名期間：${course.reg_start} ~ ${course.reg_end}
-      </p>
+      ${newBadgeHtml(course.created_at, true)}
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+        <strong style="font-family: 'Noto Serif TC', serif; font-size: 1.05rem;">${escapeHtml(course.name)}</strong>
+        <span style="font-size: 0.7rem; padding: 0.15rem 0.55rem; border-radius: 10px; color: ${status.color}; border: 1px solid ${status.color};">${status.text}</span>
+      </div>
+      <p style="margin: 0 0 0.9rem; font-size: 0.88rem; color: oklch(35% 0.014 75); line-height: 1.6;">${escapeHtml(course.description || '')}</p>
+      <p style="margin: 0; font-size: 0.78rem; color: oklch(48% 0.02 75); line-height: 1.7;">上課時間：${escapeHtml(course.schedule_text || '未定')}｜名額：${course.capacity ?? '不限'}<br>報名期間：${course.reg_start} ~ ${course.reg_end}</p>
     `;
     courseCards.appendChild(div);
   }
@@ -183,27 +206,25 @@ function renderQuestion(q) {
   const requiredMark = q.required ? ' *' : '';
   let inputHtml = '';
   if (q.type === 'text') {
-    inputHtml = `<input type="text" data-question-id="${q.id}" data-type="text">`;
+    inputHtml = `<input type="text" data-question-id="${q.id}" data-type="text" style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box;">`;
   } else if (q.type === 'number') {
-    inputHtml = `<input type="number" data-question-id="${q.id}" data-type="number">`;
+    inputHtml = `<input type="number" data-question-id="${q.id}" data-type="number" style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box;">`;
   } else if (q.type === 'single') {
-    inputHtml = q.options.map(opt => `
-      <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-right:1rem; font-weight:normal;">
-        <input type="radio" name="q-${q.id}" value="${escapeHtml(opt)}" data-question-id="${q.id}" data-type="single">
-        ${escapeHtml(opt)}
+    inputHtml = `<div style="display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem;">` + q.options.map(opt => `
+      <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;">
+        <input type="radio" name="q-${q.id}" value="${escapeHtml(opt)}" data-question-id="${q.id}" data-type="single">${escapeHtml(opt)}
       </label>
-    `).join('');
+    `).join('') + `</div>`;
   } else if (q.type === 'multiple') {
-    inputHtml = q.options.map(opt => `
-      <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-right:1rem; font-weight:normal;">
-        <input type="checkbox" value="${escapeHtml(opt)}" data-question-id="${q.id}" data-type="multiple">
-        ${escapeHtml(opt)}
+    inputHtml = `<div style="display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem;">` + q.options.map(opt => `
+      <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;">
+        <input type="checkbox" value="${escapeHtml(opt)}" data-question-id="${q.id}" data-type="multiple">${escapeHtml(opt)}
       </label>
-    `).join('');
+    `).join('') + `</div>`;
   }
   return `
-    <div class="full" style="margin-bottom:0.8rem;">
-      <label>${escapeHtml(q.question_text)}${requiredMark}</label>
+    <div>
+      <label style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.5rem;">${escapeHtml(q.question_text)}${requiredMark}</label>
       ${inputHtml}
     </div>
   `;
@@ -372,7 +393,7 @@ function playPageTurnSound() {
 
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.32, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.28, ctx.currentTime + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
 
     noise.connect(filter);
@@ -391,11 +412,10 @@ function openLightbox(index) {
   lightboxImg.style.transition = 'none';
   applyLightboxContent();
   lightboxImg.style.opacity = '1';
-  lightboxImg.style.transformOrigin = 'center center';
-  lightboxImg.style.transform = 'rotateY(0deg)';
+  lightboxImg.style.transform = 'translateX(0)';
   lightbox.style.display = 'flex';
   requestAnimationFrame(() => {
-    lightboxImg.style.transition = 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.45,0.05,0.35,1)';
+    lightboxImg.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
   });
 }
 
@@ -407,21 +427,14 @@ function goToIndex(newIndex, dir) {
   lightboxIndex = newIndex;
   playPageTurnSound();
 
-  // 翻頁效果：目前照片先以左/右邊緣為軸翻出去
-  lightboxImg.style.transformOrigin = dir === 'next' ? 'left center' : 'right center';
-  lightboxImg.style.opacity = '0.15';
-  lightboxImg.style.transform = dir === 'next' ? 'rotateY(-100deg)' : 'rotateY(100deg)';
+  lightboxImg.style.opacity = '0';
+  lightboxImg.style.transform = dir === 'next' ? 'translateX(-18px)' : 'translateX(18px)';
 
   setTimeout(() => {
     applyLightboxContent();
-    // 換成新照片，從另一側邊緣翻入
-    lightboxImg.style.transformOrigin = dir === 'next' ? 'right center' : 'left center';
-    lightboxImg.style.transform = dir === 'next' ? 'rotateY(80deg)' : 'rotateY(-80deg)';
-    requestAnimationFrame(() => {
-      lightboxImg.style.opacity = '1';
-      lightboxImg.style.transform = 'rotateY(0deg)';
-    });
-  }, 230);
+    lightboxImg.style.transform = 'translateX(0)';
+    lightboxImg.style.opacity = '1';
+  }, 260);
 }
 
 function showPrev() {
@@ -447,14 +460,13 @@ document.addEventListener('keydown', (e) => {
 
 function renderGalleryGrid(items) {
   galleryGrid.innerHTML = items.map((item, index) => `
-    <figure class="gallery-thumb" data-index="${index}" style="margin:0; border:1px solid var(--border); border-radius:3px; overflow:hidden; background:#fffdf7; cursor:pointer;">
-      <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width:100%; height:160px; object-fit:cover; display:block;">
-      ${item.title || item.description ? `
-        <figcaption style="padding:0.5rem;">
-          ${item.title ? `<strong style="font-size:0.9rem;">${escapeHtml(item.title)}</strong>` : ''}
-          ${item.description ? `<p class="hint" style="margin:0.2rem 0 0;">${escapeHtml(item.description)}</p>` : ''}
-        </figcaption>
-      ` : ''}
+    <figure class="gallery-thumb" data-index="${index}" style="margin: 0; cursor: pointer;">
+      <div style="aspect-ratio: 4 / 5; overflow: hidden; background: oklch(92% 0.01 75);">
+        <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      </div>
+      <figcaption style="margin-top: 0.6rem; text-align: center;">
+        <strong style="font-family: 'Noto Serif TC', serif; font-size: 0.88rem; font-weight: 500;">${escapeHtml(item.title || '')}</strong>
+      </figcaption>
     </figure>
   `).join('');
   galleryGrid.querySelectorAll('.gallery-thumb').forEach((el) => {
@@ -484,12 +496,14 @@ function loadAlbumList() {
     if (!albums.length) return;
     gallerySection.style.display = 'block';
     albumGrid.innerHTML = albums.map((album, index) => `
-      <figure class="album-thumb" data-index="${index}" style="margin:0; position:relative; border:1px solid var(--border); border-radius:3px; overflow:hidden; background:#fffdf7; cursor:pointer;">
+      <figure class="album-thumb" data-index="${index}" style="margin: 0; cursor: pointer; position: relative;">
         ${newBadgeHtml(album.created_at, true)}
-        <img src="${album.cover_url}" alt="${escapeHtml(album.name)}" style="width:100%; height:160px; object-fit:cover; display:block;">
-        <figcaption style="padding:0.5rem;">
-          <strong style="font-size:0.9rem;">${escapeHtml(album.name)}</strong>
-          ${album.description ? `<p class="hint" style="margin:0.2rem 0 0;">${escapeHtml(album.description)}</p>` : ''}
+        <div style="aspect-ratio: 4 / 5; overflow: hidden; background: oklch(92% 0.01 75);">
+          <img src="${album.cover_url}" alt="${escapeHtml(album.name)}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        </div>
+        <figcaption style="margin-top: 0.7rem; text-align: center;">
+          <strong style="font-family: 'Noto Serif TC', serif; font-size: 0.95rem; font-weight: 500;">${escapeHtml(album.name)}</strong>
+          <p style="margin: 0.2rem 0 0; font-size: 0.78rem; color: oklch(48% 0.02 75);">${escapeHtml(album.description || '')}</p>
         </figcaption>
       </figure>
     `).join('');

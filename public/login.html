@@ -6,34 +6,35 @@
 <title>管理者登入</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Klee+One&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; }
+  a { color: oklch(46% 0.17 29); text-decoration: none; }
+  a:hover { color: oklch(38% 0.17 29); text-decoration: underline; }
+  input, button { font-family: 'Noto Sans TC', sans-serif; }
+</style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <div class="seal">墨</div>
-    <div>
-      <h1 id="site-title">書法班報名系統</h1>
-      <p class="subtitle">ADMIN LOGIN</p>
-    </div>
+
+<div style="background: oklch(97% 0.012 75); min-height: 100vh; font-family: 'Noto Sans TC', sans-serif; color: oklch(20% 0.014 75); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; position: relative; overflow: hidden;">
+  <div style="position: absolute; inset: 0; background: radial-gradient(circle at 15% 15%, oklch(46% 0.17 29 / 0.05), transparent 45%), radial-gradient(circle at 85% 85%, oklch(20% 0.014 75 / 0.05), transparent 50%); pointer-events: none;"></div>
+
+  <div style="position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 2.4rem;">
+    <div style="width: 56px; height: 56px; background: oklch(46% 0.17 29); color: oklch(97% 0.01 75); display: flex; align-items: center; justify-content: center; font-family: 'Ma Shan Zheng', cursive; font-size: 2.1rem; border-radius: 3px; margin-bottom: 1rem;">墨</div>
+    <h1 id="site-title" style="margin: 0; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em;">書法班報名系統</h1>
+    <p style="margin: 0.2rem 0 0; font-size: 0.68rem; letter-spacing: 0.2em; color: oklch(48% 0.02 75); text-transform: uppercase;">Admin Login</p>
   </div>
-</header>
-<main style="max-width:400px;">
 
-  <section class="card">
-    <h2>管理者登入</h2>
-    <form id="login-form">
-      <label for="password">密碼</label>
-      <input type="password" id="password" required autofocus>
-      <p class="hint" id="login-error" style="color:#b3261e;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary">登入</button>
-      </div>
-    </form>
-  </section>
-
-</main>
+  <form id="login-form" style="position: relative; width: 100%; max-width: 340px; border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 2.2rem 2rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1.2rem; box-sizing: border-box;">
+    <h2 style="margin: 0 0 0.2rem; font-family: 'Noto Serif TC', serif; font-size: 1.15rem; font-weight: 600; text-align: center;">管理者登入</h2>
+    <div>
+      <label for="password" style="display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.5rem;">密碼</label>
+      <input type="password" id="password" required autofocus style="width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 1rem; box-sizing: border-box;">
+    </div>
+    <p id="login-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29); min-height: 1.1em;"></p>
+    <button type="submit" style="background: oklch(46% 0.17 29); color: oklch(98% 0.01 75); border: none; padding: 0.75rem; font-size: 0.95rem; border-radius: 2px; cursor: pointer; letter-spacing: 0.15em;">登入</button>
+  </form>
+</div>
 
 <script>
 const form = document.getElementById('login-form');

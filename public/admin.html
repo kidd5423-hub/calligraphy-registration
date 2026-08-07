@@ -6,280 +6,288 @@
 <title>後台管理｜書法班報名系統</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Klee+One&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  body { margin: 0; }
+  a { color: oklch(46% 0.17 29); text-decoration: none; }
+  a:hover { color: oklch(38% 0.17 29); text-decoration: underline; }
+  input, textarea, select, button { font-family: 'Noto Sans TC', sans-serif; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid oklch(88% 0.012 75); font-size: 0.85rem; }
+  th { color: oklch(48% 0.02 75); font-weight: 500; font-size: 0.78rem; }
+  .tab-btn { text-align: left; border: none; background: transparent; color: oklch(30% 0.014 75); padding: 0.65rem 0.8rem; font-size: 0.88rem; border-radius: 2px; cursor: pointer; border-left: 3px solid transparent; display: block; width: 100%; }
+  .tab-btn.active { background: oklch(93% 0.03 29); color: oklch(30% 0.14 29); border-left-color: oklch(46% 0.17 29); }
+  .tab-section { display: none; }
+  .tab-section.active { display: block; }
+  .field-label { display: block; font-size: 0.8rem; color: oklch(48% 0.02 75); margin-bottom: 0.4rem; }
+  .field-input { width: 100%; border: none; border-bottom: 1px solid oklch(75% 0.012 75); background: transparent; padding: 0.5rem 0; font-size: 0.95rem; box-sizing: border-box; }
+  .field-textarea { width: 100%; border: 1px solid oklch(85% 0.012 75); background: transparent; padding: 0.55rem; font-size: 0.9rem; border-radius: 2px; box-sizing: border-box; resize: vertical; }
+  .btn-primary { background: oklch(46% 0.17 29); color: oklch(98% 0.01 75); border: none; padding: 0.65rem 1.6rem; font-size: 0.88rem; border-radius: 2px; cursor: pointer; }
+  .btn-secondary { background: none; border: 1px solid oklch(85% 0.012 75); padding: 0.65rem 1.4rem; font-size: 0.88rem; border-radius: 2px; cursor: pointer; }
+  .btn-danger { background: none; border: 1px solid oklch(46% 0.17 29); color: oklch(46% 0.17 29); padding: 0.3rem 0.6rem; font-size: 0.78rem; border-radius: 2px; cursor: pointer; }
+  .btn-small { background: none; border: 1px solid oklch(85% 0.012 75); padding: 0.3rem 0.6rem; font-size: 0.78rem; border-radius: 2px; cursor: pointer; }
+</style>
 </head>
 <body>
-<header>
-  <div class="header-inner" style="justify-content:space-between;">
-    <div style="display:flex; align-items:center; gap:0.9rem;">
-      <div class="seal">墨</div>
+
+<div style="background: oklch(97% 0.012 75); min-height: 100vh; font-family: 'Noto Sans TC', sans-serif; color: oklch(20% 0.014 75); display: flex;">
+
+  <aside style="width: 220px; flex-shrink: 0; background: oklch(99% 0.005 75); border-right: 1px solid oklch(85% 0.012 75); min-height: 100vh; padding: 1.6rem 0; box-sizing: border-box; position: sticky; top: 0;">
+    <div style="display: flex; align-items: center; gap: 0.7rem; padding: 0 1.4rem 1.6rem; border-bottom: 1px solid oklch(88% 0.012 75); margin-bottom: 1rem;">
+      <div style="width: 36px; height: 36px; background: oklch(46% 0.17 29); color: oklch(97% 0.01 75); display: flex; align-items: center; justify-content: center; font-family: 'Ma Shan Zheng', cursive; font-size: 1.4rem; border-radius: 3px; flex-shrink: 0;">墨</div>
       <div>
-        <h1 id="page-title">書法班 — 後台管理</h1>
-        <p class="subtitle">ADMIN CONSOLE</p>
-      </div>
-    </div>
-    <button type="button" class="secondary" id="logout-btn">登出</button>
-  </div>
-</header>
-<main>
-
-  <section class="card">
-    <h2>系統設定</h2>
-    <form id="settings-form">
-      <div class="form-grid">
-        <div class="full">
-          <label for="site-title-input">網站名稱</label>
-          <input type="text" id="site-title-input" placeholder="書法班報名系統">
-        </div>
-        <div class="full">
-          <label for="notify-email">報名通知信箱（有人報名時會寄信到這個地址，留空則不寄信）</label>
-          <input type="email" id="notify-email" placeholder="admin@example.com">
-        </div>
-        <div>
-          <label for="new-badge-days">New 標示顯示天數（新課程/相簿幾天內顯示閃爍 New 標示，0 表示不顯示）</label>
-          <input type="number" id="new-badge-days" min="0" placeholder="7">
-        </div>
-      </div>
-      <p class="hint" id="settings-error" style="color:#b3261e;"></p>
-      <p class="hint" id="settings-success" style="color:#274e13;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary">儲存設定</button>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h2 id="form-title">新增課程</h2>
-    <form id="course-form">
-      <input type="hidden" id="course-id">
-      <div class="form-grid">
-        <div class="full">
-          <label for="name">課程名稱 *</label>
-          <input type="text" id="name" required>
-        </div>
-        <div class="full">
-          <label for="description">課程說明</label>
-          <textarea id="description"></textarea>
-        </div>
-        <div>
-          <label for="schedule_text">上課時間</label>
-          <input type="text" id="schedule_text" placeholder="例如：每週三 19:00-21:00">
-        </div>
-        <div>
-          <label for="capacity">名額上限（留空表示不限）</label>
-          <input type="number" id="capacity" min="1">
-        </div>
-        <div>
-          <label for="reg_start">報名開始日期 *</label>
-          <input type="date" id="reg_start" required>
-        </div>
-        <div>
-          <label for="reg_end">報名結束日期 *</label>
-          <input type="date" id="reg_end" required>
-        </div>
-      </div>
-      <p class="hint" id="form-error" style="color:#b3261e;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary" id="submit-btn">新增課程</button>
-        <button type="button" class="secondary" id="cancel-edit" style="display:none;">取消編輯</button>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h2>課程列表</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>課程名稱</th>
-          <th>上課時間</th>
-          <th>名額</th>
-          <th>報名期間</th>
-          <th>狀態</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="course-list"></tbody>
-    </table>
-    <p class="empty" id="empty-hint" style="display:none;">目前尚未新增任何課程</p>
-  </section>
-
-  <section class="card">
-    <h2>題目管理</h2>
-    <div style="max-width:300px; margin-bottom:1rem;">
-      <label for="question-course-select">選擇課程</label>
-      <select id="question-course-select"></select>
-    </div>
-
-    <form id="question-form" style="margin-bottom:1.2rem;">
-      <input type="hidden" id="q-id">
-      <div class="form-grid">
-        <div class="full">
-          <label for="q-text">題目文字 *</label>
-          <input type="text" id="q-text" required>
-        </div>
-        <div>
-          <label for="q-type">題型 *</label>
-          <select id="q-type">
-            <option value="text">文字輸入</option>
-            <option value="number">數字輸入</option>
-            <option value="single">單選</option>
-            <option value="multiple">多選</option>
-          </select>
-        </div>
-        <div>
-          <label for="q-required">是否必填</label>
-          <select id="q-required">
-            <option value="false">選填</option>
-            <option value="true">必填</option>
-          </select>
-        </div>
-        <div class="full" id="q-options-wrap" style="display:none;">
-          <label for="q-options">選項（單選/多選適用，請用逗號分隔，例如：右手,左手）</label>
-          <input type="text" id="q-options" placeholder="選項一,選項二,選項三">
-        </div>
-      </div>
-      <p class="hint" id="q-error" style="color:#b3261e;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary" id="q-submit-btn">新增題目</button>
-        <button type="button" class="secondary" id="q-cancel-edit" style="display:none;">取消編輯</button>
-      </div>
-    </form>
-
-    <table>
-      <thead>
-        <tr>
-          <th>題目</th>
-          <th>題型</th>
-          <th>必填</th>
-          <th>選項</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="question-list"></tbody>
-    </table>
-    <p class="empty" id="question-empty-hint" style="display:none;">請先選擇課程，或這堂課還沒有設定題目</p>
-  </section>
-
-  <section class="card">
-    <h2>報名者列表</h2>
-    <div style="display:flex; gap:0.8rem; align-items:flex-end; margin-bottom:1rem;">
-      <div style="max-width:300px; flex:1;">
-        <label for="filter-course">篩選課程</label>
-        <select id="filter-course"></select>
-      </div>
-      <button type="button" class="secondary" id="export-csv-btn">下載報名名單（CSV）</button>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>姓名</th>
-          <th>聯絡人</th>
-          <th>電話</th>
-          <th>Email</th>
-          <th>備註</th>
-          <th>報名時間</th>
-          <th>自訂題目答案</th>
-        </tr>
-      </thead>
-      <tbody id="registration-list"></tbody>
-    </table>
-    <p class="empty" id="registration-empty-hint" style="display:none;">這堂課目前還沒有報名資料</p>
-  </section>
-
-  <section class="card">
-    <h2>報名統計總覽</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>課程名稱</th>
-          <th>狀態</th>
-          <th>報名人數</th>
-          <th>名額上限</th>
-        </tr>
-      </thead>
-      <tbody id="stats-list"></tbody>
-    </table>
-    <p class="empty" id="stats-empty-hint" style="display:none;">目前尚未新增任何課程</p>
-  </section>
-
-  <section class="card">
-    <h2>相簿管理</h2>
-    <form id="album-form">
-      <input type="hidden" id="album-id">
-      <div class="form-grid">
-        <div>
-          <label for="album-name">相簿名稱 *</label>
-          <input type="text" id="album-name" required>
-        </div>
-        <div>
-          <label for="album-description">說明</label>
-          <input type="text" id="album-description">
-        </div>
-      </div>
-      <p class="hint" id="album-error" style="color:#b3261e;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary" id="album-submit-btn">新增相簿</button>
-        <button type="button" class="secondary" id="album-cancel-edit" style="display:none;">取消編輯</button>
-      </div>
-    </form>
-
-    <table style="margin-top:1rem;">
-      <thead>
-        <tr>
-          <th>相簿名稱</th>
-          <th>說明</th>
-          <th>照片數</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="album-list"></tbody>
-    </table>
-    <p class="empty" id="album-empty-hint" style="display:none;">目前還沒有建立任何相簿</p>
-  </section>
-
-  <section class="card">
-    <h2>教學作品上傳</h2>
-    <form id="gallery-form">
-      <div class="form-grid">
-        <div class="full">
-          <label for="gallery-album">選擇相簿 *</label>
-          <select id="gallery-album" required></select>
-        </div>
-        <div class="full">
-          <label for="gallery-image">選擇圖片（可一次選取多張） *</label>
-          <input type="file" id="gallery-image" accept="image/*" multiple required>
-        </div>
-        <div>
-          <label for="gallery-title">標題</label>
-          <input type="text" id="gallery-title">
-        </div>
-        <div>
-          <label for="gallery-description">說明</label>
-          <input type="text" id="gallery-description">
-        </div>
-      </div>
-      <p class="hint" id="gallery-error" style="color:#b3261e;"></p>
-      <div class="actions" style="margin-top:0.8rem;">
-        <button type="submit" class="primary" id="gallery-submit-btn">上傳作品</button>
-      </div>
-    </form>
-
-    <div class="form-grid" style="margin-top:1rem;">
-      <div>
-        <label for="gallery-filter">依相簿檢視</label>
-        <select id="gallery-filter"></select>
+        <div id="page-title" style="font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 0.95rem;">書法班</div>
+        <div style="font-size: 0.62rem; letter-spacing: 0.15em; color: oklch(48% 0.02 75);">ADMIN CONSOLE</div>
       </div>
     </div>
 
-    <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:1rem; margin-top:1rem;"></div>
-    <p class="empty" id="gallery-empty-hint" style="display:none;">目前還沒有上傳任何作品</p>
-  </section>
+    <nav style="display: flex; flex-direction: column; gap: 0.2rem; padding: 0 0.8rem;">
+      <button type="button" class="tab-btn active" data-tab="settings">系統設定</button>
+      <button type="button" class="tab-btn" data-tab="courses">課程管理</button>
+      <button type="button" class="tab-btn" data-tab="questions">題目管理</button>
+      <button type="button" class="tab-btn" data-tab="registrations">報名名單</button>
+      <button type="button" class="tab-btn" data-tab="stats">統計總覽</button>
+      <button type="button" class="tab-btn" data-tab="gallery">相簿與作品</button>
+    </nav>
 
-</main>
+    <div style="padding: 1.4rem;">
+      <button type="button" id="logout-btn" style="width: 100%; border: 1px solid oklch(85% 0.012 75); background: none; padding: 0.55rem; font-size: 0.82rem; border-radius: 2px; cursor: pointer;">登出</button>
+    </div>
+  </aside>
+
+  <main style="flex: 1; min-width: 0; padding: 2.4rem 3rem; max-width: 1100px; box-sizing: border-box;">
+
+    <section id="tab-settings" class="tab-section active">
+      <h2 style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.6rem; font-size: 1.3rem;">系統設定</h2>
+      <form id="settings-form" style="border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 1.8rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1.2rem; max-width: 520px;">
+        <div>
+          <label class="field-label" for="site-title-input">網站名稱</label>
+          <input type="text" id="site-title-input" placeholder="書法班報名系統" class="field-input">
+        </div>
+        <div>
+          <label class="field-label" for="notify-email">報名通知信箱（留空則不寄信）</label>
+          <input type="email" id="notify-email" placeholder="admin@example.com" class="field-input">
+        </div>
+        <div>
+          <label class="field-label" for="new-badge-days">New 標示顯示天數（0 表示不顯示）</label>
+          <input type="number" id="new-badge-days" min="0" placeholder="7" class="field-input">
+        </div>
+        <p id="settings-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29);"></p>
+        <p id="settings-success" style="margin: 0; font-size: 0.85rem; color: oklch(42% 0.09 145);"></p>
+        <div><button type="submit" class="btn-primary" style="padding: 0.7rem 1.8rem;">儲存設定</button></div>
+      </form>
+    </section>
+
+    <section id="tab-courses" class="tab-section">
+      <h2 id="form-title" style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.6rem; font-size: 1.3rem;">新增課程</h2>
+      <form id="course-form" style="border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 1.8rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1.1rem; margin-bottom: 2.2rem;">
+        <input type="hidden" id="course-id">
+        <div>
+          <label class="field-label" for="name">課程名稱 *</label>
+          <input type="text" id="name" required class="field-input">
+        </div>
+        <div>
+          <label class="field-label" for="description">課程說明</label>
+          <textarea id="description" rows="2" class="field-textarea"></textarea>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem;">
+          <div>
+            <label class="field-label" for="schedule_text">上課時間</label>
+            <input type="text" id="schedule_text" placeholder="例如：每週三 19:00-21:00" class="field-input">
+          </div>
+          <div>
+            <label class="field-label" for="capacity">名額上限（留空表示不限）</label>
+            <input type="number" id="capacity" min="1" class="field-input">
+          </div>
+          <div>
+            <label class="field-label" for="reg_start">報名開始日期 *</label>
+            <input type="date" id="reg_start" required class="field-input">
+          </div>
+          <div>
+            <label class="field-label" for="reg_end">報名結束日期 *</label>
+            <input type="date" id="reg_end" required class="field-input">
+          </div>
+        </div>
+        <p id="form-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29);"></p>
+        <div style="display: flex; gap: 0.7rem;">
+          <button type="submit" class="btn-primary" id="submit-btn">新增課程</button>
+          <button type="button" class="btn-secondary" id="cancel-edit" style="display: none;">取消編輯</button>
+        </div>
+      </form>
+
+      <h3 style="font-family: 'Noto Serif TC', serif; font-size: 1.05rem; margin: 0 0 0.9rem;">課程列表</h3>
+      <div style="overflow-x: auto;">
+      <table>
+        <thead><tr><th>課程名稱</th><th>上課時間</th><th>名額</th><th>報名期間</th><th>狀態</th><th>操作</th></tr></thead>
+        <tbody id="course-list"></tbody>
+      </table>
+      </div>
+      <p id="empty-hint" style="margin: 1rem 0 0; font-size: 0.85rem; color: oklch(48% 0.02 75); display: none;">目前尚未新增任何課程</p>
+    </section>
+
+    <section id="tab-questions" class="tab-section">
+      <h2 style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.6rem; font-size: 1.3rem;">題目管理</h2>
+      <div style="max-width: 320px; margin-bottom: 1.2rem;">
+        <label class="field-label" for="question-course-select">選擇課程</label>
+        <select id="question-course-select" class="field-input"></select>
+      </div>
+
+      <form id="question-form" style="border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 1.6rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+        <input type="hidden" id="q-id">
+        <div>
+          <label class="field-label" for="q-text">題目文字 *</label>
+          <input type="text" id="q-text" required class="field-input">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem;">
+          <div>
+            <label class="field-label" for="q-type">題型 *</label>
+            <select id="q-type" class="field-input">
+              <option value="text">文字輸入</option>
+              <option value="number">數字輸入</option>
+              <option value="single">單選</option>
+              <option value="multiple">多選</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="q-required">是否必填</label>
+            <select id="q-required" class="field-input">
+              <option value="false">選填</option>
+              <option value="true">必填</option>
+            </select>
+          </div>
+        </div>
+        <div id="q-options-wrap" style="display: none;">
+          <label class="field-label" for="q-options">選項（請用逗號分隔，例如：右手,左手）</label>
+          <input type="text" id="q-options" placeholder="選項一,選項二,選項三" class="field-input">
+        </div>
+        <p id="q-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29);"></p>
+        <div style="display: flex; gap: 0.7rem;">
+          <button type="submit" class="btn-primary" id="q-submit-btn">新增題目</button>
+          <button type="button" class="btn-secondary" id="q-cancel-edit" style="display: none;">取消編輯</button>
+        </div>
+      </form>
+
+      <div style="overflow-x: auto;">
+      <table>
+        <thead><tr><th>題目</th><th>題型</th><th>必填</th><th>選項</th><th>操作</th></tr></thead>
+        <tbody id="question-list"></tbody>
+      </table>
+      </div>
+      <p id="question-empty-hint" style="margin: 1rem 0 0; font-size: 0.85rem; color: oklch(48% 0.02 75); display: none;">請先選擇課程，或這堂課還沒有設定題目</p>
+    </section>
+
+    <section id="tab-registrations" class="tab-section">
+      <h2 style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.6rem; font-size: 1.3rem;">報名名單</h2>
+      <div style="display: flex; gap: 1rem; align-items: flex-end; margin-bottom: 1.4rem;">
+        <div style="max-width: 280px; flex: 1;">
+          <label class="field-label" for="filter-course">篩選課程</label>
+          <select id="filter-course" class="field-input"></select>
+        </div>
+        <button type="button" class="btn-secondary" id="export-csv-btn" style="padding: 0.55rem 1rem;">下載報名名單（CSV）</button>
+      </div>
+      <div style="overflow-x: auto;">
+      <table>
+        <thead><tr><th>姓名</th><th>聯絡人</th><th>電話</th><th>Email</th><th>備註</th><th>報名時間</th><th>自訂題目答案</th></tr></thead>
+        <tbody id="registration-list"></tbody>
+      </table>
+      </div>
+      <p id="registration-empty-hint" style="margin: 1rem 0 0; font-size: 0.85rem; color: oklch(48% 0.02 75); display: none;">這堂課目前還沒有報名資料</p>
+    </section>
+
+    <section id="tab-stats" class="tab-section">
+      <h2 style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.6rem; font-size: 1.3rem;">報名統計總覽</h2>
+      <div style="overflow-x: auto;">
+      <table>
+        <thead><tr><th>課程名稱</th><th>狀態</th><th>報名人數</th><th>名額上限</th></tr></thead>
+        <tbody id="stats-list"></tbody>
+      </table>
+      </div>
+      <p id="stats-empty-hint" style="margin: 1rem 0 0; font-size: 0.85rem; color: oklch(48% 0.02 75); display: none;">目前尚未新增任何課程</p>
+    </section>
+
+    <section id="tab-gallery" class="tab-section">
+      <h2 style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.6rem; font-size: 1.3rem;">相簿管理</h2>
+      <form id="album-form" style="border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 1.6rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.6rem; max-width: 560px;">
+        <input type="hidden" id="album-id">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem;">
+          <div>
+            <label class="field-label" for="album-name">相簿名稱 *</label>
+            <input type="text" id="album-name" required class="field-input">
+          </div>
+          <div>
+            <label class="field-label" for="album-description">說明</label>
+            <input type="text" id="album-description" class="field-input">
+          </div>
+        </div>
+        <p id="album-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29);"></p>
+        <div style="display: flex; gap: 0.7rem;">
+          <button type="submit" class="btn-primary" id="album-submit-btn">新增相簿</button>
+          <button type="button" class="btn-secondary" id="album-cancel-edit" style="display: none;">取消編輯</button>
+        </div>
+      </form>
+
+      <div style="overflow-x: auto; margin-bottom: 2.2rem;">
+      <table>
+        <thead><tr><th>相簿名稱</th><th>說明</th><th>照片數</th><th></th></tr></thead>
+        <tbody id="album-list"></tbody>
+      </table>
+      </div>
+      <p id="album-empty-hint" style="margin: 0 0 2.2rem; font-size: 0.85rem; color: oklch(48% 0.02 75); display: none;">目前還沒有建立任何相簿</p>
+
+      <h2 style="font-family: 'Noto Serif TC', serif; margin: 0 0 1.4rem; font-size: 1.3rem;">教學作品上傳</h2>
+      <form id="gallery-form" style="border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); padding: 1.6rem; border-radius: 2px; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.6rem; max-width: 560px;">
+        <div>
+          <label class="field-label" for="gallery-album">選擇相簿 *</label>
+          <select id="gallery-album" required class="field-input"></select>
+        </div>
+        <div>
+          <label class="field-label" for="gallery-image">選擇圖片（可一次選取多張） *</label>
+          <input type="file" id="gallery-image" accept="image/*" multiple required style="width: 100%;">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem;">
+          <div>
+            <label class="field-label" for="gallery-title">標題</label>
+            <input type="text" id="gallery-title" class="field-input">
+          </div>
+          <div>
+            <label class="field-label" for="gallery-description">說明</label>
+            <input type="text" id="gallery-description" class="field-input">
+          </div>
+        </div>
+        <p id="gallery-error" style="margin: 0; font-size: 0.85rem; color: oklch(46% 0.17 29);"></p>
+        <div><button type="submit" class="btn-primary" id="gallery-submit-btn">上傳作品</button></div>
+      </form>
+
+      <div style="max-width: 280px; margin-bottom: 1.2rem;">
+        <label class="field-label" for="gallery-filter">依相簿檢視</label>
+        <select id="gallery-filter" class="field-input"></select>
+      </div>
+
+      <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.1rem;"></div>
+      <p id="gallery-empty-hint" style="margin: 1rem 0 0; font-size: 0.85rem; color: oklch(48% 0.02 75); display: none;">目前還沒有上傳任何作品</p>
+    </section>
+
+  </main>
+</div>
 
 <script>
+// 分頁切換
+document.querySelectorAll('.tab-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelectorAll('.tab-section').forEach((s) => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 const settingsForm = document.getElementById('settings-form');
 const notifyEmailField = document.getElementById('notify-email');
 const siteTitleField = document.getElementById('site-title-input');
@@ -289,7 +297,7 @@ const settingsSuccess = document.getElementById('settings-success');
 
 function applySiteTitle(title) {
   const displayTitle = title || '書法班報名系統';
-  document.getElementById('page-title').textContent = `${displayTitle} — 後台管理`;
+  document.getElementById('page-title').textContent = displayTitle;
   document.title = `後台管理｜${displayTitle}`;
 }
 
@@ -350,12 +358,14 @@ function todayStr() {
 
 function courseStatus(course) {
   const today = todayStr();
-  if (today < course.reg_start) return { text: '尚未開始', cls: 'status-upcoming' };
-  if (today > course.reg_end) return { text: '已截止', cls: 'status-closed' };
-  if (course.capacity !== null && course.registered_count >= course.capacity) {
-    return { text: '已額滿', cls: 'status-full' };
-  }
-  return { text: '報名中', cls: 'status-open' };
+  if (today < course.reg_start) return { text: '尚未開始', color: 'oklch(55% 0.02 75)' };
+  if (today > course.reg_end) return { text: '已截止', color: 'oklch(55% 0.02 75)' };
+  if (course.capacity !== null && course.registered_count >= course.capacity) return { text: '已額滿', color: 'oklch(50% 0.14 55)' };
+  return { text: '報名中', color: 'oklch(46% 0.17 29)' };
+}
+
+function statusBadge(status) {
+  return `<span style="font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 10px; color: ${status.color}; border: 1px solid ${status.color};">${status.text}</span>`;
 }
 
 async function loadCourses() {
@@ -372,11 +382,11 @@ async function loadCourses() {
       <td>${escapeHtml(course.schedule_text || '-')}</td>
       <td>${course.capacity ?? '不限'}</td>
       <td>${course.reg_start} ~ ${course.reg_end}</td>
-      <td><span class="status-badge ${status.cls}">${status.text}</span></td>
-      <td class="actions">
-        <button class="secondary" data-edit="${course.id}">編輯</button>
-        <button class="secondary" data-duplicate="${course.id}">複製</button>
-        <button class="danger" data-delete="${course.id}">刪除</button>
+      <td>${statusBadge(status)}</td>
+      <td style="display: flex; gap: 0.4rem;">
+        <button class="btn-small" data-edit="${course.id}">編輯</button>
+        <button class="btn-small" data-duplicate="${course.id}">複製</button>
+        <button class="btn-danger" data-delete="${course.id}">刪除</button>
       </td>
     `;
     courseList.appendChild(tr);
@@ -401,12 +411,6 @@ async function duplicateCourse(id) {
   await loadStats();
   await loadQuestionCourseSelect();
   startEdit(newCourse);
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
 }
 
 function startEdit(course) {
@@ -518,7 +522,7 @@ async function loadRegistrations() {
       <td>${escapeHtml(r.email || '-')}</td>
       <td>${escapeHtml(r.note || '-')}</td>
       <td>${r.created_at}</td>
-      <td style="font-size:0.85rem;">${answersHtml}</td>
+      <td style="font-size: 0.8rem;">${answersHtml}</td>
     `;
     registrationList.appendChild(tr);
   }
@@ -560,7 +564,7 @@ async function loadStats() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${escapeHtml(course.name)}</td>
-      <td><span class="status-badge ${status.cls}">${status.text}</span></td>
+      <td>${statusBadge(status)}</td>
       <td>${count}</td>
       <td>${course.capacity ?? '不限'}</td>
     `;
@@ -622,9 +626,9 @@ async function loadQuestions() {
       <td>${TYPE_LABELS[q.type]}</td>
       <td>${q.required ? '必填' : '選填'}</td>
       <td>${q.options ? escapeHtml(q.options.join('、')) : '-'}</td>
-      <td class="actions">
-        <button class="secondary" data-q-edit="${q.id}">編輯</button>
-        <button class="danger" data-q-delete="${q.id}">刪除</button>
+      <td style="display: flex; gap: 0.4rem;">
+        <button class="btn-small" data-q-edit="${q.id}">編輯</button>
+        <button class="btn-danger" data-q-delete="${q.id}">刪除</button>
       </td>
     `;
     questionList.appendChild(tr);
@@ -744,9 +748,9 @@ async function loadAlbums() {
       <td>${escapeHtml(album.name)}</td>
       <td>${escapeHtml(album.description || '-')}</td>
       <td>${count}</td>
-      <td class="actions">
-        <button class="secondary" data-album-edit="${album.id}">編輯</button>
-        <button class="danger" data-album-delete="${album.id}">刪除</button>
+      <td style="display: flex; gap: 0.4rem;">
+        <button class="btn-small" data-album-edit="${album.id}">編輯</button>
+        <button class="btn-danger" data-album-delete="${album.id}">刪除</button>
       </td>
     `;
     albumList.appendChild(tr);
@@ -844,30 +848,30 @@ async function loadGallery() {
     const albumName = albumsCache.find(a => a.id === item.album_id)?.name || '';
     const div = document.createElement('div');
     div.className = 'gallery-card';
-    div.style.cssText = 'border:1px solid var(--border); border-radius:3px; overflow:hidden; background:#fffdf7;';
+    div.style.cssText = 'border: 1px solid oklch(85% 0.012 75); background: oklch(99% 0.005 75); border-radius: 2px; overflow: hidden;';
 
     if (editingGalleryItemId === item.id) {
       div.innerHTML = `
-        <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width:100%; height:120px; object-fit:cover; display:block;">
-        <div style="padding:0.5rem;">
-          <input type="text" data-edit-title value="${escapeHtml(item.title || '')}" placeholder="標題" style="width:100%; margin-bottom:0.3rem; font-size:0.85rem;">
-          <input type="text" data-edit-description value="${escapeHtml(item.description || '')}" placeholder="說明" style="width:100%; margin-bottom:0.3rem; font-size:0.85rem;">
-          <div style="display:flex; gap:0.4rem;">
-            <button type="button" class="primary" data-gallery-save="${item.id}" style="font-size:0.8rem; padding:0.3rem 0.6rem;">儲存</button>
-            <button type="button" class="secondary" data-gallery-cancel-edit style="font-size:0.8rem; padding:0.3rem 0.6rem;">取消</button>
+        <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width: 100%; height: 120px; object-fit: cover; display: block;">
+        <div style="padding: 0.6rem; display: flex; flex-direction: column; gap: 0.4rem;">
+          <input type="text" data-edit-title value="${escapeHtml(item.title || '')}" placeholder="標題" style="width: 100%; font-size: 0.82rem; border: 1px solid oklch(85% 0.012 75); padding: 0.3rem; box-sizing: border-box;">
+          <input type="text" data-edit-description value="${escapeHtml(item.description || '')}" placeholder="說明" style="width: 100%; font-size: 0.82rem; border: 1px solid oklch(85% 0.012 75); padding: 0.3rem; box-sizing: border-box;">
+          <div style="display: flex; gap: 0.4rem;">
+            <button type="button" class="btn-primary" data-gallery-save="${item.id}" style="padding: 0.3rem 0.6rem; font-size: 0.78rem;">儲存</button>
+            <button type="button" class="btn-small" data-gallery-cancel-edit>取消</button>
           </div>
         </div>
       `;
     } else {
       div.innerHTML = `
-        <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width:100%; height:120px; object-fit:cover; display:block;">
-        <div style="padding:0.5rem;">
-          <strong style="font-size:0.9rem;">${escapeHtml(item.title || '（無標題）')}</strong>
-          <p class="hint" style="margin:0.2rem 0;">${escapeHtml(item.description || '')}</p>
-          <p class="hint" style="margin:0.2rem 0;">相簿：${escapeHtml(albumName || '-')}</p>
-          <div style="display:flex; gap:0.4rem;">
-            <button type="button" class="secondary" data-gallery-edit="${item.id}" style="font-size:0.8rem; padding:0.3rem 0.6rem;">編輯</button>
-            <button type="button" class="danger" data-gallery-delete="${item.id}" style="font-size:0.8rem; padding:0.3rem 0.6rem;">刪除</button>
+        <img src="${item.image_url}" alt="${escapeHtml(item.title || '')}" style="width: 100%; height: 120px; object-fit: cover; display: block;">
+        <div style="padding: 0.6rem; display: flex; flex-direction: column; gap: 0.3rem;">
+          <strong style="font-size: 0.85rem;">${escapeHtml(item.title || '（無標題）')}</strong>
+          <p style="margin: 0; font-size: 0.78rem; color: oklch(48% 0.02 75);">${escapeHtml(item.description || '')}</p>
+          <p style="margin: 0; font-size: 0.75rem; color: oklch(55% 0.02 75);">相簿：${escapeHtml(albumName || '-')}</p>
+          <div style="display: flex; gap: 0.4rem; margin-top: 0.2rem;">
+            <button type="button" class="btn-small" data-gallery-edit="${item.id}">編輯</button>
+            <button type="button" class="btn-danger" data-gallery-delete="${item.id}">刪除</button>
           </div>
         </div>
       `;
